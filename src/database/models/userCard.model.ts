@@ -54,6 +54,8 @@ UserCard.init(
     sequelize: database,
     tableName: "user_cards",
     timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
     underscored: true,
   },
 );

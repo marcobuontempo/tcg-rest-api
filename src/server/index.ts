@@ -4,7 +4,7 @@ import { ApiError } from "../utilities/error.util.js";
 import { errorHandler } from "../api/middlewares/errorHandler.middleware.js";
 import router from "../api/routes/index.js";
 
-export const serverStart = () => {
+export const serverStart = async () => {
   // Initialise Express
   const app = express();
 

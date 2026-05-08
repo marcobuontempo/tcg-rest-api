@@ -57,6 +57,7 @@ CardMarketStats.init(
     tableName: "card_market_stats",
     timestamps: false,
     createdAt: false,
+    updatedAt: "updated_at",
     underscored: true,
   },
 );

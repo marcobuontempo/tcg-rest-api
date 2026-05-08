@@ -69,6 +69,8 @@ MarketListing.init(
     sequelize: database,
     tableName: "market_listings",
     timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
     underscored: true,
   },
 );

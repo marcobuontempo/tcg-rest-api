@@ -3,7 +3,7 @@ import { configurePRAGMA } from "./pragmas.js";
 import { initialiseAssociations } from "./associations.js";
 import { seedDefaultCards } from "./seedDefaultCards.js";
 
-export const startDatabase = async () => {
+export const databaseStart = async () => {
   await database.authenticate();
   console.log("SQLite connected");
 

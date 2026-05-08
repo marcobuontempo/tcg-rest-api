@@ -3,11 +3,11 @@ import { Request, Response, NextFunction } from "express";
 import { generateSeed, hashSeed } from "../../utilities/seed.util.js";
 import { User } from "../../database/models/user.model.js";
 
-export async function registerUser(
+export const registerUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+) => {
   const seed = generateSeed(config.game.userSeedLength);
 
   const seedHash = hashSeed(seed);
@@ -18,4 +18,4 @@ export async function registerUser(
     seed: seed,
     message: "User registered",
   });
-}
+};

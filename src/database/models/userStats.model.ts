@@ -57,6 +57,7 @@ UserStats.init(
     tableName: "user_stats",
     timestamps: true,
     createdAt: false,
+    updatedAt: "updated_at",
     underscored: true,
   },
 );

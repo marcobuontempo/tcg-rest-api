@@ -1,11 +1,11 @@
 import { NextFunction, Request, response, Response } from "express";
 import { ApiError } from "../../utilities/error.util.js";
 
-export async function getUserData(
+export const getUserData = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+) => {
   const { username, balance, xp, created_at } = req.user;
 
   const data = {
@@ -16,13 +16,13 @@ export async function getUserData(
   };
 
   return res.status(200).json(data);
-}
+};
 
-export async function updateUsername(
+export const updateUsername = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+) => {
   const user = req.user;
 
   const newUsername = req.body?.username;
@@ -42,7 +42,7 @@ export async function updateUsername(
   };
 
   return res.status(200).json(data);
-}
+};
 
 export async function deleteUser(
   req: Request,

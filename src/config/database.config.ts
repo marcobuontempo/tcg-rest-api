@@ -5,7 +5,7 @@ export const database: Options = {
   storage: process.env.DB_LOCATION ?? "./data/database.sqlite",
   logging: false,
   pool: {
-    max: 5,
+    max: Number(process.env.DB_POOL_SIZE ?? 5),
     min: 1,
     idle: 10000,
   },
