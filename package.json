@@ -1,0 +1,46 @@
+{
+  "name": "tcg-rest-api",
+  "version": "0.0.1",
+  "description": "A REST API for a trading card game featuring battles, card collection, and a player-driven market",
+  "keywords": [
+    "rest",
+    "api",
+    "rest-api",
+    "tcg",
+    "the-tcg",
+    "trading",
+    "card",
+    "cards",
+    "game",
+    "battle",
+    "collect",
+    "market"
+  ],
+  "homepage": "https://github.com/marcobuontempo/tcg-rest-api#readme",
+  "bugs": {
+    "url": "https://github.com/marcobuontempo/tcg-rest-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcobuontempo/tcg-rest-api.git"
+  },
+  "license": "MIT",
+  "author": "Marco Buontempo",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "sequelize": "^6.37.8",
+    "sqlite3": "^6.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "@types/sequelize": "^4.28.20",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  }
+}
