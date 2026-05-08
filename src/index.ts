@@ -7,6 +7,7 @@ process.env.TZ = config.server.timezone;
 
 (async () => {
   try {
+    console.log("Starting server...");
     await startDatabase();
     serverStart();
   } catch (err) {
