@@ -1,4 +1,4 @@
 export const server = {
-  TIMEZONE: process.env.TIMEZONE ?? "UTC",
-  PORT: process.env.PORT ?? "4000",
+  timezone: process.env.TIMEZONE ?? "UTC",
+  port: process.env.PORT ?? "4000",
 };

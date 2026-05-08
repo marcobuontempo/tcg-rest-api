@@ -1,10 +1,10 @@
-import { loadEnvFile } from "node:process";
+import "dotenv/config";
 import { server } from "./server.config.js";
-
-loadEnvFile();
+import { database } from "./database.config.js";
 
 export const config = {
   server,
+  database,
 };
 
 export default config;
