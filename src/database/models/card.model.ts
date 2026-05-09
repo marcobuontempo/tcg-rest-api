@@ -37,9 +37,10 @@ Card.init(
     },
 
     name: {
-      type: DataTypes.STRING,
+      type: DataTypes.CITEXT,
       unique: true,
       allowNull: false,
+      validate: { max: 255 },
     },
 
     type: {

@@ -1,5 +1,7 @@
 # Trading Card Game: REST API
 
+*Stateless design: Each request contains all necessary information to process it. No server-side session state is stored; all persistent data is in the database.*
+
 Note: All routes must be prefixed with `/api`
 
 ## Non-Registered Routes

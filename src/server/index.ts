@@ -1,5 +1,6 @@
 import config from "../config/index.js";
 import express from "express";
+import cors from "cors";
 import { ApiError } from "../utilities/error.util.js";
 import { errorHandler } from "../api/middlewares/errorHandler.middleware.js";
 import router from "../api/routes/index.js";
@@ -7,6 +8,9 @@ import router from "../api/routes/index.js";
 export const serverStart = async () => {
   // Initialise Express
   const app = express();
+
+  // Setup CORS
+  app.use(cors());
 
   // Parse JSON Requests
   app.use(express.json());
