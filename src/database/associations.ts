@@ -14,6 +14,11 @@ export const initialiseAssociations = () => {
   });
   User.hasOne(UserStats, { foreignKey: "user_id", sourceKey: "id" });
 
+  // User creation automatically generates UserStats
+  User.afterCreate(async (user, options) => {
+    await UserStats.create({ user_id: user.id });
+  });
+
   // User has UserCards (1:N)
   UserCard.belongsTo(User, {
     foreignKey: "user_id",
