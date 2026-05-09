@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { cache } from "../../cache/index.js";
 
-export const getCardInfo = async (
+export const getAllCardsData = async (
   req: Request,
   res: Response,
   next: NextFunction,

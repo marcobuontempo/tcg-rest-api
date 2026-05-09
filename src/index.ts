@@ -1,4 +1,4 @@
-import { cache, cacheStart } from "./cache/index.js";
+import { cacheStart } from "./cache/index.js";
 import config from "./config/index.js";
 import { databaseStart } from "./database/index.js";
 import { serverStart } from "./server/index.js";

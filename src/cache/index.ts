@@ -6,4 +6,6 @@ export const cache = {
 
 export const cacheStart = async () => {
   await populateCardCache();
+  
+  console.log("Populated cache")
 };

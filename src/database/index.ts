@@ -11,7 +11,7 @@ export const databaseStart = async () => {
 
   initialiseAssociations();
 
-  await database.sync({ alter: true });
+  await database.sync();
   console.log("Synced all models to database");
 
   await seedDefaultCards();

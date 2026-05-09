@@ -9,6 +9,6 @@ export const seedDefaultCards = async () => {
 
     await Card.bulkCreate(config.defaultCards);
 
-    console.log(`Seeded ${config.defaultCards.length} default cards.`);
+    console.log(`Seeded ${config.defaultCards.length} default cards into database`);
   }
 };
