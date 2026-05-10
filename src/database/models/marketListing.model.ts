@@ -9,18 +9,19 @@ import {
 import { database } from "../connection.js";
 import { User } from "./user.model.js";
 import { Card } from "./card.model.js";
+import { MarketListingAttributes } from "../../schemas/marketListing.schema.js";
 
 export class MarketListing extends Model<
   InferAttributes<MarketListing>,
   InferCreationAttributes<MarketListing>
 > {
-  declare id: CreationOptional<number>;
-  declare user_id: ForeignKey<User["id"]>;
-  declare card_id: ForeignKey<Card["id"]>;
-  declare quantity: CreationOptional<number>;
-  declare price: number;
-  declare created_at: CreationOptional<Date>;
-  declare updated_at: CreationOptional<Date>;
+  declare id: CreationOptional<MarketListingAttributes["id"]>;
+  declare user_id: ForeignKey<MarketListingAttributes["user_id"]>;
+  declare card_id: ForeignKey<MarketListingAttributes["card_id"]>;
+  declare quantity: CreationOptional<MarketListingAttributes["quantity"]>;
+  declare price: MarketListingAttributes["price"];
+  declare created_at: CreationOptional<MarketListingAttributes["created_at"]>;
+  declare updated_at: CreationOptional<MarketListingAttributes["updated_at"]>;
 }
 
 MarketListing.init(

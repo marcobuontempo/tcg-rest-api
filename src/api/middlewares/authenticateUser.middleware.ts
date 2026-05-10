@@ -8,17 +8,14 @@ export const authenticateUser = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const seed = req.headers["x-user-seed"];
-  if (!seed || typeof seed !== "string" || Array.isArray(seed)) {
-    return next(ApiError.forbidden("missing user seed"));
-  }
+  const seed = req.get("x-user-seed")!;
 
   const hashedSeed = hashSeed(seed.toUpperCase());
 
   const user = await User.findOne({ where: { seed_hash: hashedSeed } });
 
   if (!user) {
-    return next(ApiError.forbidden("user seed does not exist."));
+    return next(ApiError.forbidden("user seed does not exist"));
   }
 
   req.user = user;

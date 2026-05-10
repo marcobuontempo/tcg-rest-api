@@ -6,26 +6,22 @@ import {
   CreationOptional,
 } from "sequelize";
 import { database } from "../connection.js";
-
-const CARD_TYPES = ["bug", "tree", "cloud", "shell"] as const;
-type CardType = (typeof CARD_TYPES)[number];
-
-const CARD_RARITY = ["kilo", "mega", "giga", "tera", "peta", "exa"] as const;
-export type CardRarity = (typeof CARD_RARITY)[number];
+import { CardAttributes } from "../../schemas/card.schema.js";
+import config from "../../config/index.js";
 
 export class Card extends Model<
   InferAttributes<Card>,
   InferCreationAttributes<Card>
 > {
-  declare id: CreationOptional<number>;
-  declare name: string;
-  declare type: CardType;
-  declare rarity: CardRarity;
-  declare drop_rate: number;
-  declare attack: number;
-  declare defense: number;
-  declare created_at: CreationOptional<Date>;
-  declare updated_at: CreationOptional<Date>;
+  declare id: CreationOptional<CardAttributes["id"]>;
+  declare name: CardAttributes["name"];
+  declare type: CardAttributes["type"];
+  declare rarity: CardAttributes["rarity"];
+  declare drop_rate: CardAttributes["drop_rate"];
+  declare attack: CardAttributes["attack"];
+  declare defense: CardAttributes["defense"];
+  declare created_at: CreationOptional<CardAttributes["created_at"]>;
+  declare updated_at: CreationOptional<CardAttributes["updated_at"]>;
 }
 
 Card.init(
@@ -40,35 +36,35 @@ Card.init(
       type: DataTypes.CITEXT,
       unique: true,
       allowNull: false,
-      validate: { max: 255 },
+      validate: { len: [1, 32] },
     },
 
     type: {
-      type: DataTypes.ENUM(...CARD_TYPES),
+      type: DataTypes.ENUM(...config.cards.types),
       allowNull: false,
     },
 
     rarity: {
-      type: DataTypes.ENUM(...CARD_RARITY),
+      type: DataTypes.ENUM(...config.cards.rarities),
       allowNull: false,
     },
 
     drop_rate: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      validate: { min: 0, max: 10000 },
+      validate: { min: 1, max: 10000 },
     },
 
     attack: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      validate: { min: 0, max: 999999999 },
+      validate: { min: 1, max: 10000 },
     },
 
     defense: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      validate: { min: 0, max: 999999999 },
+      validate: { min: 1, max: 10000 },
     },
 
     created_at: DataTypes.DATE,

@@ -8,16 +8,17 @@ import {
 } from "sequelize";
 import { database } from "../connection.js";
 import { User } from "./user.model.js";
+import { UserStatsAttributes } from "../../schemas/userStats.schema.js";
 
 export class UserStats extends Model<
   InferAttributes<UserStats>,
   InferCreationAttributes<UserStats>
 > {
-  declare user_id: ForeignKey<User["id"]>;
-  declare total_battles: CreationOptional<number>;
-  declare total_wins: CreationOptional<number>;
-  declare total_losses: CreationOptional<number>;
-  declare updated_at: CreationOptional<Date>;
+  declare user_id: ForeignKey<UserStatsAttributes["user_id"]>;
+  declare total_battles: CreationOptional<UserStatsAttributes["total_battles"]>;
+  declare total_wins: CreationOptional<UserStatsAttributes["total_wins"]>;
+  declare total_losses: CreationOptional<UserStatsAttributes["total_losses"]>;
+  declare updated_at: CreationOptional<UserStatsAttributes["updated_at"]>;
 }
 
 UserStats.init(
@@ -35,18 +36,21 @@ UserStats.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
+      validate: { min: 0 },
     },
 
     total_wins: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
+      validate: { min: 0 },
     },
 
     total_losses: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
+      validate: { min: 0 },
     },
 
     updated_at: DataTypes.DATE,

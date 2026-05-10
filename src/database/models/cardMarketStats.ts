@@ -8,16 +8,17 @@ import {
 } from "sequelize";
 import { database } from "../connection.js";
 import { Card } from "./card.model.js";
+import { CardMarketStatsAttributes } from "../../schemas/cardMarketStats.schema.js";
 
 export class CardMarketStats extends Model<
   InferAttributes<CardMarketStats>,
   InferCreationAttributes<CardMarketStats>
 > {
-  declare card_id: ForeignKey<Card["id"]>;
-  declare quantity_existing: number;
-  declare quantity_sold: number;
-  declare average_sold_price: number;
-  declare updated_at: CreationOptional<Date>;
+  declare card_id: ForeignKey<CardMarketStatsAttributes["card_id"]>;
+  declare quantity_existing: CardMarketStatsAttributes["quantity_existing"];
+  declare quantity_sold: CardMarketStatsAttributes["quantity_sold"];
+  declare average_sold_price: CardMarketStatsAttributes["average_sold_price"];
+  declare updated_at: CreationOptional<CardMarketStatsAttributes["updated_at"]>;
 }
 
 CardMarketStats.init(

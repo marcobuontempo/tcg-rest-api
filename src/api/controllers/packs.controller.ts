@@ -2,10 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { cache } from "../../cache/index.js";
 import { selectRandomCards } from "../../utilities/packs.util.js";
 import { UserCard } from "../../database/models/userCard.model.js";
-import { Sequelize } from "sequelize";
-import { database } from "../../database/connection.js";
 import { formatCardForResponse } from "../../utilities/cards.util.js";
-import { Card } from "../../database/models/card.model.js";
 
 export const getAllPacksData = async (
   req: Request,

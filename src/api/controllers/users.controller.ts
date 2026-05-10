@@ -1,5 +1,4 @@
-import { NextFunction, Request, response, Response } from "express";
-import { ApiError } from "../../utilities/error.util.js";
+import { NextFunction, Request, Response } from "express";
 
 export const getUserData = async (
   req: Request,
@@ -25,12 +24,7 @@ export const updateUsername = async (
 ) => {
   const user = req.user;
 
-  const newUsername = req.body?.username;
-  if (!newUsername) {
-    return next(ApiError.badRequest("'username' field not provided."));
-  }
-
-  await user.update({ username: newUsername });
+  await user.update(req.body);
 
   const { username, balance, xp, created_at } = user;
 

@@ -12,12 +12,7 @@ export const playBattle = async (
   const userId = req.user.id;
 
   // get user cards from req.body
-  let cardNames = req.body?.cards;
-
-  // verify that cards array contains 5 names
-  if (!cardNames || !Array.isArray(cardNames) || cardNames.length !== 5) {
-    return next(ApiError.badRequest("'cards' must be an array of length 5"));
-  }
+  let cardNames = req.body.cards as string[];
 
   // flatten requested names into [name] : [quantity]
   const cardNamesCount: Record<string, number> = {};

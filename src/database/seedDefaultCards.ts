@@ -7,8 +7,10 @@ export const seedDefaultCards = async () => {
   if (count === 0) {
     console.log("No cards in database: seeding default cards...");
 
-    await Card.bulkCreate(config.defaultCards);
+    await Card.bulkCreate(config.cards.default, { validate: true });
 
-    console.log(`Seeded ${config.defaultCards.length} default cards into database`);
+    console.log(
+      `Seeded ${config.cards.default.length} default cards into database`,
+    );
   }
 };

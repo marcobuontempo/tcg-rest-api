@@ -6,6 +6,8 @@ import usersRoute from "./users.route.js";
 import cardsRoute from "./cards.route.js";
 import packsRoute from "./packs.route.js";
 import battleRoute from "./battle.route.js";
+import { validate } from "../middlewares/validate.middleware.js";
+import { userSeedHeadersSchema } from "../../schemas/user.schema.js";
 
 const router = express.Router();
 
@@ -20,12 +22,12 @@ router.get("/", (req, res, next) =>
 
 router.use("/register", registerRoute);
 
-router.use("/users", authenticateUser, usersRoute);
+router.use("/users", validate(userSeedHeadersSchema), authenticateUser, usersRoute);
 
-router.use("/cards", authenticateUser, cardsRoute);
+router.use("/cards", validate(userSeedHeadersSchema), authenticateUser, cardsRoute);
 
-router.use("/packs", authenticateUser, packsRoute);
+router.use("/packs", validate(userSeedHeadersSchema), authenticateUser, packsRoute);
 
-router.use("/battle", authenticateUser, battleRoute);
+router.use("/battle", validate(userSeedHeadersSchema), authenticateUser, battleRoute);
 
 export default router;

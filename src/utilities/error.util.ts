@@ -10,7 +10,7 @@ export class ApiError {
   }
 
   static badRequest(message: string) {
-    return new ApiError(400, `Bad Request: ${message}`);
+    return new ApiError(400, `Bad Request - ${message}`);
   }
 
   static unauthorised() {
@@ -19,7 +19,7 @@ export class ApiError {
 
   static forbidden(message?: string) {
     const displayMessage = message
-      ? `Forbidden Access: ${message}`
+      ? `Forbidden Access - ${message}`
       : "Forbidden Access";
     return new ApiError(403, displayMessage);
   }
@@ -29,6 +29,6 @@ export class ApiError {
   }
 
   static internal(message: string, error: Error | unknown) {
-    return new ApiError(500, `Internal Server Error: ${message}`, error);
+    return new ApiError(500, `Internal Server Error - ${message}`, error);
   }
 }

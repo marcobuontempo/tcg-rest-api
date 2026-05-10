@@ -6,18 +6,19 @@ import {
   CreationOptional,
 } from "sequelize";
 import { database } from "../connection.js";
+import { UserAttributes } from "../../schemas/user.schema.js";
 
 export class User extends Model<
   InferAttributes<User>,
   InferCreationAttributes<User>
 > {
-  declare id: CreationOptional<string>;
-  declare seed_hash: string;
-  declare username: CreationOptional<string>;
-  declare balance: CreationOptional<number>;
-  declare xp: CreationOptional<number>;
-  declare created_at: CreationOptional<Date>;
-  declare updated_at: CreationOptional<Date>;
+  declare id: CreationOptional<UserAttributes["id"]>;
+  declare seed_hash: UserAttributes["seed_hash"];
+  declare username: CreationOptional<UserAttributes["username"]>;
+  declare balance: CreationOptional<UserAttributes["balance"]>;
+  declare xp: CreationOptional<UserAttributes["xp"]>;
+  declare created_at: CreationOptional<UserAttributes["created_at"]>;
+  declare updated_at: CreationOptional<UserAttributes["updated_at"]>;
 }
 
 User.init(
@@ -38,6 +39,7 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "anonymous",
+      validate: { len: [3, 32] },
     },
 
     balance: {

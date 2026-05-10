@@ -9,16 +9,17 @@ import {
 import { database } from "../connection.js";
 import { User } from "./user.model.js";
 import { Card } from "./card.model.js";
+import { UserCardAttributes } from "../../schemas/userCard.schema.js";
 
 export class UserCard extends Model<
   InferAttributes<UserCard>,
   InferCreationAttributes<UserCard>
 > {
-  declare user_id: ForeignKey<User["id"]>;
-  declare card_id: ForeignKey<Card["id"]>;
-  declare quantity: number;
-  declare created_at: CreationOptional<Date>;
-  declare updated_at: CreationOptional<Date>;
+  declare user_id: ForeignKey<UserCardAttributes["user_id"]>;
+  declare card_id: ForeignKey<UserCardAttributes["card_id"]>;
+  declare quantity: UserCardAttributes["quantity"];
+  declare created_at: CreationOptional<UserCardAttributes["created_at"]>;
+  declare updated_at: CreationOptional<UserCardAttributes["updated_at"]>;
 }
 
 UserCard.init(
@@ -44,6 +45,7 @@ UserCard.init(
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: { min: 0 },
     },
 
     created_at: DataTypes.DATE,
