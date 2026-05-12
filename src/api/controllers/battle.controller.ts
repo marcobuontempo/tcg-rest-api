@@ -2,9 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import { ApiError } from "../../utilities/error.util.js";
 import { UserCard } from "../../database/models/userCard.model.js";
 import { Card } from "../../database/models/card.model.js";
+import z from "zod";
+import { BattleSchema } from "../../schemas/battle.schema.js";
+import { TypedRequest } from "../../types/express.js";
 
 export const playBattle = async (
-  req: Request,
+  req: TypedRequest<typeof BattleSchema>,
   res: Response,
   next: NextFunction,
 ) => {
@@ -12,7 +15,7 @@ export const playBattle = async (
   const userId = req.user.id;
 
   // get user cards from req.body
-  let cardNames = req.body.cards as string[];
+  let cardNames = req.body.cards;
 
   // flatten requested names into [name] : [quantity]
   const cardNamesCount: Record<string, number> = {};

@@ -45,7 +45,7 @@ Note: must include seed in request headers `x-user-seed`
 
 #### Update Username
 
-`PUT: /users/me`
+`PATCH: /users/me`
 
 `body: { "username": "new_username" }`
 
@@ -70,6 +70,14 @@ Note: must include seed in request headers `x-user-seed`
 `POST: /battle/play`
 
 `body: { "cards": [ "foo", "bar", "baz", "quux", "corge" ] }`
+
+_Note: `"cards"` must contain the name of cards that the user actually owns_
+
+#### Create Card Listing
+
+`POST: /market`
+
+`body: { "name": "foo", "quantity": 5, price: 100 }`
 
 _Note: `"cards"` must contain the name of cards that the user actually owns_
 

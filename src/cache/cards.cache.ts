@@ -3,13 +3,9 @@ import { formatCardForResponse } from "../utilities/cards.util.js";
 
 export const cards: {
   data: Map<string, Card["dataValues"]>;
-  response: Array<
-    Omit<Card["dataValues"], "id" | "drop_rate" | "created_at" | "updated_at">
-  >;
   cumulativeDropRates: number;
 } = {
   data: new Map(),
-  response: [],
   cumulativeDropRates: 0,
 };
 
@@ -18,13 +14,10 @@ export const populateCardCache = async () => {
 
   cards.data.clear();
 
-  cards.response = dbCards
+  dbCards
     .sort((a, b) => a.drop_rate - b.drop_rate)
-    .map((card) => {
+    .forEach((card) => {
       cards.data.set(card.name, card.dataValues);
-
       cards.cumulativeDropRates += card.dataValues.drop_rate;
-
-      return formatCardForResponse(card.dataValues);
     });
 };

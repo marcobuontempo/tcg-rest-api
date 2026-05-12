@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const battleSchema = z.object({
+export const BattleSchema = z.object({
   body: z.strictObject(
     {
       cards: z

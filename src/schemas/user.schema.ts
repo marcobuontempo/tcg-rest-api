@@ -11,18 +11,14 @@ export const UserSchema = z.object({
     .min(3, "'username' length must be 3-32 characters")
     .max(32, "'username' length must be 3-32 characters"),
   balance: z
-    .number()
     .int("'balance' must be an integer")
     .nonnegative("'balance' must not be negative"),
-  xp: z
-    .number()
-    .int("'xp' must be an integer")
-    .nonnegative("'xp' must not be negative"),
+  xp: z.int("'xp' must be an integer").nonnegative("'xp' must not be negative"),
   created_at: z.date("'created_at' must be a date"),
   updated_at: z.date("'updated_at' must be a date"),
 });
 
-export const userSeedHeadersSchema = z.object({
+export const UserSeedHeadersSchema = z.object({
   headers: z.object({
     "x-user-seed": z
       .string("missing 'x-user-seed' from request headers")
@@ -33,9 +29,11 @@ export const userSeedHeadersSchema = z.object({
   }),
 });
 
-export const updateUsernameSchema = z.object({
+export const UpdateUsernameSchema = z.object({
   body: z.strictObject(
-    UserSchema.pick({ username: true }).shape,
+    {
+      username: UserSchema.shape.username,
+    },
     "invalid request body fields",
   ),
 });

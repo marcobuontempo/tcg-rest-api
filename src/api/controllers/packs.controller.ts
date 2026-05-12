@@ -3,6 +3,7 @@ import { cache } from "../../cache/index.js";
 import { selectRandomCards } from "../../utilities/packs.util.js";
 import { UserCard } from "../../database/models/userCard.model.js";
 import { formatCardForResponse } from "../../utilities/cards.util.js";
+import z from "zod";
 
 export const getAllPacksData = async (
   req: Request,
