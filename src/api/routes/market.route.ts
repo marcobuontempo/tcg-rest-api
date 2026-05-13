@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  buyMarketListing,
   createMarketListing,
   deleteMarketListing,
   getAllMarketListings,
@@ -8,6 +9,7 @@ import {
 } from "../controllers/market.controller.js";
 import { validate } from "../middlewares/validate.middleware.js";
 import {
+  BuyMarketListingSchema,
   CreateMarketListingSchema,
   DeleteMarketListingSchema,
   GetAllMarketListingsSchema,
@@ -25,6 +27,8 @@ router.get("/", validate(GetAllMarketListingsSchema), getAllMarketListings);
 router.post("/", validate(CreateMarketListingSchema), createMarketListing);
 
 router.delete("/:id", validate(DeleteMarketListingSchema), deleteMarketListing);
+
+router.post("/:id/buy", validate(BuyMarketListingSchema), buyMarketListing);
 
 // router.patch("/:id", );
 

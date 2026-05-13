@@ -23,8 +23,6 @@ export const openPack = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = req.user.id;
-
   let insertQuery: string[] = [];
   const pulledCards = selectRandomCards(
     cache.cards.data,
@@ -32,7 +30,7 @@ export const openPack = async (
     5,
   ).map((card) => {
     insertQuery.push(
-      `('${userId}', ${card.id}, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      `('${req.user.id}', ${card.id}, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
     );
     return formatCardForResponse(card);
   });

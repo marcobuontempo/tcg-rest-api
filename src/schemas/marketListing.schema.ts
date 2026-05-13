@@ -79,14 +79,50 @@ export const GetAllMarketListingsSchema = z.object({
     .partial(),
 });
 
-export const GetMarketListingByIdSchema = z.object({
-  params: z.strictObject({
-    id: z.coerce.number("'id' must be a number").int("'id' must be an integer"),
-  }),
-});
+export const GetMarketListingByIdSchema = z.object(
+  {
+    params: z.strictObject(
+      {
+        id: z.coerce
+          .number("'id' must be a number")
+          .int("'id' must be an integer"),
+      },
+      "invalid request params fields",
+    ),
+  },
+  "invalid request params fields",
+);
 
-export const DeleteMarketListingSchema = z.object({
-  params: z.strictObject({
-    id: z.coerce.number("'id' must be a number").int("'id' must be an integer"),
-  }),
-});
+export const DeleteMarketListingSchema = z.object(
+  {
+    params: z.strictObject(
+      {
+        id: z.coerce
+          .number("'id' must be a number")
+          .int("'id' must be an integer"),
+      },
+      "invalid request params fields",
+    ),
+  },
+  "invalid request params fields",
+);
+
+export const BuyMarketListingSchema = z.object(
+  {
+    params: z.strictObject(
+      {
+        id: z.coerce
+          .number("'id' must be a number")
+          .int("'id' must be an integer"),
+      },
+      "invalid request params fields",
+    ),
+    body: z.strictObject(
+      {
+        quantity: MarketListingSchema.shape.quantity,
+      },
+      "invalid request body fields",
+    ),
+  },
+  "invalid request fields",
+);

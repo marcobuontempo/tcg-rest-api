@@ -19,7 +19,7 @@ export const serverStart = async () => {
   app.use("/api", router);
 
   // All Invalid Endpoints
-  app.use((req, res, next) => next(ApiError.notFound()));
+  app.use((req, res, next) => next(ApiError.notFound("invalid endpoint")));
 
   // Global Error Handler
   app.use(errorHandler);

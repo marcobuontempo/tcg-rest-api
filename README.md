@@ -82,10 +82,15 @@ _Note: `"cards"` must contain the name of cards that the user actually owns_
 `body: { "name": "foo", "quantity": 5, price: 100 }`
 
 _Note: `"cards"` must contain the name of cards that the user actually owns_
+_Note: the price is **per** card, not for the entire quantity_
 
 #### Get Market Listing By Id
 
-`GET: /market/:id`
+`GET: /market/:listing_id`
+
+#### Get User Market Listings
+
+`GET: /market/me`
 
 #### Get All User Market Listings
 
@@ -95,8 +100,18 @@ _Note: `"cards"` must contain the name of cards that the user actually owns_
 
 `GET: /market`
 
-`params: name, type, rarity, min_price, max_price, sort_by`
+`query: name, type, rarity, min_price, max_price, sort_by`
 
 _Note: only the first 10 matching results are returned_
+
+#### Delete Market Listing
+
+`DELETE: /market/:listing_id`
+
+#### Buy Market Listing
+
+`POST: /market/:listing_id`
+
+`body: { "quantity": 5 }`
 
 ### Admin Routes

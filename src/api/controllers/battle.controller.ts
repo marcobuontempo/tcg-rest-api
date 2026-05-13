@@ -4,6 +4,7 @@ import { UserCard } from "../../database/models/userCard.model.js";
 import { Card } from "../../database/models/card.model.js";
 import { BattleSchema } from "../../schemas/battle.schema.js";
 import { TypedRequest } from "../../types/express.js";
+import { col, Op } from "sequelize";
 
 // POST: /api/battle/play
 export const playBattle = async (
@@ -11,43 +12,34 @@ export const playBattle = async (
   res: Response,
   next: NextFunction,
 ) => {
-  // get userid
-  const userId = req.user.id;
-
-  // get user cards from req.body
+  // get user cards from req.body and normalise
   let cardNames = req.body.cards;
 
   // flatten requested names into [name] : [quantity]
   const cardNamesCount: Record<string, number> = {};
-  cardNames.forEach((cardName) => {
-    const cardNameNormalised = cardName.toLowerCase();
-    cardNamesCount[cardNameNormalised] =
-      (cardNamesCount[cardNameNormalised] || 0) + 1;
-  });
+  for (const name of cardNames) {
+    cardNamesCount[name] = (cardNamesCount[name] || 0) + 1;
+  }
 
   // verify all cards are actually owned by user
   // join cards -> usercards, and find all matching card names provided
   const userCards = (await UserCard.findAll({
     where: {
-      user_id: userId,
-    },
-    attributes: {
-      exclude: ["created_at", "updated_at"],
+      user_id: req.user.id,
     },
     include: [
       {
         model: Card,
         where: {
-          name: cardNames,
-        },
-        attributes: {
-          exclude: ["created_at", "updated_at"],
+          name: {
+            [Op.in]: cardNames,
+          },
         },
       },
     ],
   })) as (UserCard & { Card: Card })[];
 
-  // check there user owns the valid amount of cards
+  // check there user owns the valid amount of cards TODO: needs fixing
   for (const card of userCards) {
     const cardName = card.Card.name;
     const userOwnedQuantity = card.quantity;

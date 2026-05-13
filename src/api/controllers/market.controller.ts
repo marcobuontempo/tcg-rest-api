@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import {
+  BuyMarketListingSchema,
   CreateMarketListingSchema,
   DeleteMarketListingSchema,
   GetAllMarketListingsSchema,
@@ -19,8 +20,6 @@ export const createMarketListing = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = req.user.id;
-
   const { name: cardName, quantity, price } = req.body;
 
   // start transaction
@@ -28,9 +27,9 @@ export const createMarketListing = async (
 
   try {
     // find if user owns card with necessary quantity
-    const userCard = (await UserCard.findOne({
+    const userCard = await UserCard.findOne({
       where: {
-        user_id: userId,
+        user_id: req.user.id,
         quantity: {
           [Op.gte]: quantity,
         },
@@ -44,7 +43,7 @@ export const createMarketListing = async (
         },
       ],
       transaction,
-    })) as UserCard & { Card: Card };
+    });
 
     if (!userCard) {
       throw ApiError.badRequest(
@@ -65,7 +64,7 @@ export const createMarketListing = async (
     // create card listing
     const marketListing = await MarketListing.create(
       {
-        user_id: userId,
+        user_id: req.user.id,
         card_id: userCard.card_id,
         quantity: quantity,
         price: price,
@@ -91,11 +90,9 @@ export const getOwnMarketListings = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = req.user.id;
-
   const userListings = await MarketListing.findAll({
     where: {
-      user_id: userId,
+      user_id: req.user.id,
     },
     attributes: [
       [col("MarketListing.id"), "listing_id"],
@@ -225,8 +222,6 @@ export const deleteMarketListing = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = req.user.id;
-
   const transaction = await database.transaction();
 
   try {
@@ -243,7 +238,7 @@ export const deleteMarketListing = async (
       );
     }
 
-    if (marketListing.user_id !== userId) {
+    if (marketListing.user_id !== req.user.id) {
       throw ApiError.forbidden(
         `market listing (id:${req.params.id}) is not owned by the requested user`,
       );
@@ -274,7 +269,87 @@ export const deleteMarketListing = async (
 
     await transaction.commit();
 
-    res.status(204).send();
+    return res.status(204).send();
+  } catch (err) {
+    await transaction.rollback();
+    return next(err);
+  }
+};
+
+// POST: /api/market/:id/buy
+export const buyMarketListing = async (
+  req: TypedRequest<typeof BuyMarketListingSchema>,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { id } = req.params;
+  const { quantity } = req.body;
+
+  const transaction = await database.transaction();
+
+  try {
+    // get market listing to buy
+    const marketListing = (await MarketListing.findOne({
+      where: {
+        id: req.params.id,
+      },
+      include: [
+        {
+          model: Card,
+        },
+      ],
+      transaction,
+    })) as (MarketListing & { Card: Card }) | null;
+
+    if (!marketListing) {
+      throw ApiError.notFound(
+        `market listing (id:${id}) does not exist or is unavailable`,
+      );
+    }
+
+    if (marketListing.quantity < quantity) {
+      throw ApiError.badRequest(
+        `market listing does not have sufficient quantity available (has: ${marketListing.quantity}, requested: ${quantity})`,
+      );
+    }
+
+    // update the buyer's user card quantity, or create an entry if they don't own the card yet
+    const [userCard, created] = await UserCard.findOrCreate({
+      where: {
+        user_id: req.user.id,
+        card_id: marketListing.card_id,
+      },
+      defaults: {
+        user_id: req.user.id,
+        card_id: marketListing.card_id,
+        quantity,
+      },
+      transaction,
+    });
+
+    if (!created) {
+      await userCard.increment("quantity", {
+        by: quantity,
+        transaction,
+      });
+    }
+
+    // reduce quantity of seller's listing (or delete if quantity=0)
+    if (marketListing.quantity === quantity) {
+      await marketListing.destroy({ transaction });
+    } else {
+      await marketListing.decrement("quantity", {
+        by: quantity,
+        transaction,
+      });
+    }
+
+    await transaction.commit();
+
+    return res.status(200).json({
+      name: marketListing.Card.name,
+      quantity: quantity,
+    });
   } catch (err) {
     await transaction.rollback();
     return next(err);
