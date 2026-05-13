@@ -16,54 +16,67 @@ export const playBattle = async (
   // add user to active battles list
   cache.battle.add(req.user.id);
 
-  // get user cards from req.body and normalise
-  let cardNames = req.body.cards;
+  try {
+    // get user cards from req.body and normalise
+    let cardNames = req.body.cards;
 
-  // flatten requested names into [name] : [quantity]
-  const cardNamesCount: Record<string, number> = {};
-  for (const name of cardNames) {
-    cardNamesCount[name] = (cardNamesCount[name] || 0) + 1;
-  }
+    // flatten requested names into [name] : [quantity]
+    const cardNamesCount = new Map<string, number>();
+    for (const name of cardNames) {
+      const count = cardNamesCount.get(name) || 0;
+      cardNamesCount.set(name, count + 1);
+    }
 
-  // verify all cards are actually owned by user
-  // join cards -> usercards, and find all matching card names provided
-  const userCards = (await UserCard.findAll({
-    where: {
-      user_id: req.user.id,
-    },
-    include: [
-      {
-        model: Card,
-        where: {
-          name: {
-            [Op.in]: cardNames,
+    // verify all cards are actually owned by user
+    // join cards -> usercards, and find all matching card names provided
+    const userCards = (await UserCard.findAll({
+      where: {
+        user_id: req.user.id,
+      },
+      include: [
+        {
+          model: Card,
+          where: {
+            name: {
+              [Op.in]: cardNames,
+            },
           },
         },
-      },
-    ],
-  })) as (UserCard & { Card: Card })[];
+      ],
+    })) as (UserCard & { Card: Card })[];
 
-  // check there user owns the valid amount of cards TODO: needs fixing
-  for (const card of userCards) {
-    const cardName = card.Card.name;
-    const userOwnedQuantity = card.quantity;
-    if (cardNamesCount[cardName] > userOwnedQuantity) {
-      return next(
-        ApiError.badRequest(
-          `user does not have enough copies of '${cardName}'`,
-        ),
+    // check there user owns the valid amount of cards
+    for (const card of userCards) {
+      const cardName = card.Card.name;
+      const userOwnedQuantity = card.quantity;
+      const requestedCardcount = cardNamesCount.get(cardName)!;
+      if (requestedCardcount > userOwnedQuantity) {
+        throw ApiError.badRequest(
+          `user does not have enough copies of '${cardName}' (owned: ${userOwnedQuantity}, requested: ${requestedCardcount})`,
+        );
+      }
+      cardNamesCount.delete(cardName);
+    }
+
+    if (cardNamesCount.size > 0) {
+      throw ApiError.badRequest(
+        `user does not have any copies of: '${Array.from(cardNamesCount.keys()).join(", ")}'`,
       );
     }
+
+    const result = Math.random() > 0.5 ? "win" : "loss";
+
+    // remove user from active battles list
+    cache.battle.delete(req.user.id);
+
+    return res.status(200).json({
+      result: result,
+      win_amount: 0,
+      balance: 0,
+    });
+  } catch (err) {
+    // remove user from active battles list
+    cache.battle.delete(req.user.id);
+    return next(err);
   }
-
-  const result = Math.random() > 0.5 ? "win" : "loss";
-
-  // remove user from active battles list
-  cache.battle.delete(req.user.id);
-
-  return res.status(200).json({
-    result: result,
-    win_amount: 0,
-    balance: 0,
-  });
 };
