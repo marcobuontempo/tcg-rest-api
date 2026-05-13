@@ -1,5 +1,4 @@
 import { Card } from "../database/models/card.model.js";
-import { formatCardForResponse } from "../utilities/cards.util.js";
 
 export const cards: {
   data: Map<string, Card["dataValues"]>;

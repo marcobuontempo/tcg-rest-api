@@ -4,14 +4,14 @@ import {
   updateUsername,
   deleteUser,
 } from "../controllers/users.controller.js";
-import { validate } from "../middlewares/validate.middleware.js";
+import { validateRequest } from "../middlewares/validateRequest.middleware.js";
 import { UpdateUsernameSchema } from "../../schemas/user.schema.js";
 
 const router = Router();
 
 router.get("/me", getUserData);
 
-router.patch("/me", validate(UpdateUsernameSchema), updateUsername);
+router.patch("/me", validateRequest(UpdateUsernameSchema), updateUsername);
 
 router.delete("/me", deleteUser);
 

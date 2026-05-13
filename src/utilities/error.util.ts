@@ -10,7 +10,8 @@ export class ApiError {
   }
 
   static badRequest(message: string) {
-    return new ApiError(400, `Bad Request - ${message}`);
+    const displayMessage = message ? `Bad Request - ${message}` : "Bad Request";
+    return new ApiError(400, displayMessage);
   }
 
   static unauthorised() {
@@ -29,6 +30,11 @@ export class ApiError {
       ? `Resource Not Found - ${message}`
       : "Resource Not Found";
     return new ApiError(404, displayMessage);
+  }
+
+  static conflict(message?: string) {
+    const displayMessage = message ? `Conflict - ${message}` : "Conflict";
+    return new ApiError(409, displayMessage);
   }
 
   static internal(message: string, error: Error | unknown) {

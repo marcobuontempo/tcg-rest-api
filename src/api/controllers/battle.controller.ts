@@ -4,7 +4,8 @@ import { UserCard } from "../../database/models/userCard.model.js";
 import { Card } from "../../database/models/card.model.js";
 import { BattleSchema } from "../../schemas/battle.schema.js";
 import { TypedRequest } from "../../types/express.js";
-import { col, Op } from "sequelize";
+import { Op } from "sequelize";
+import { cache } from "../../cache/index.js";
 
 // POST: /api/battle/play
 export const playBattle = async (
@@ -12,6 +13,9 @@ export const playBattle = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // add user to active battles list
+  cache.battle.add(req.user.id);
+
   // get user cards from req.body and normalise
   let cardNames = req.body.cards;
 
@@ -53,6 +57,9 @@ export const playBattle = async (
   }
 
   const result = Math.random() > 0.5 ? "win" : "loss";
+
+  // remove user from active battles list
+  cache.battle.delete(req.user.id);
 
   return res.status(200).json({
     result: result,

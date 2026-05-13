@@ -79,10 +79,9 @@ _Note: `"cards"` must contain the name of cards that the user actually owns_
 
 `POST: /market`
 
-`body: { "name": "foo", "quantity": 5, price: 100 }`
+`body: { "name": "foo", "quantity": 5, price_per_card: 100 }`
 
 _Note: `"cards"` must contain the name of cards that the user actually owns_
-_Note: the price is **per** card, not for the entire quantity_
 
 #### Get Market Listing By Id
 
@@ -113,5 +112,11 @@ _Note: only the first 10 matching results are returned_
 `POST: /market/:listing_id`
 
 `body: { "quantity": 5 }`
+
+#### Auto Buy Card From Market
+
+`POST: /market/auto-buy`
+
+`body: { "name": "foo", "max_price": 100 }`
 
 ### Admin Routes

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import {
+  AutoBuyMarketListingSchema,
   BuyMarketListingSchema,
   CreateMarketListingSchema,
   DeleteMarketListingSchema,
@@ -20,7 +21,7 @@ export const createMarketListing = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const { name: cardName, quantity, price } = req.body;
+  const { name: cardName, quantity, price_per_card } = req.body;
 
   // start transaction
   const transaction = await database.transaction();
@@ -67,7 +68,7 @@ export const createMarketListing = async (
         user_id: req.user.id,
         card_id: userCard.card_id,
         quantity: quantity,
-        price: price,
+        price_per_card: price_per_card,
       },
       { transaction },
     );
@@ -126,8 +127,8 @@ export const getAllMarketListings = async (
     name,
     type,
     rarity,
-    min_price,
-    max_price,
+    min_price_per_card,
+    max_price_per_card,
     sort_by, // defined by schema
   } = req.query;
 
@@ -138,10 +139,12 @@ export const getAllMarketListings = async (
   if (type) searchQuery.type = type;
   if (rarity) searchQuery.rarity = rarity;
 
-  if (min_price || max_price) {
+  if (min_price_per_card || max_price_per_card) {
     searchQuery.price = {};
-    if (min_price) searchQuery.defense[Op.gte] = Number(min_price);
-    if (max_price) searchQuery.defense[Op.lte] = Number(max_price);
+    if (min_price_per_card)
+      searchQuery.defense[Op.gte] = Number(min_price_per_card);
+    if (max_price_per_card)
+      searchQuery.defense[Op.lte] = Number(max_price_per_card);
   }
 
   // default to sorting by price (and transform "newest" to correct column)
@@ -178,7 +181,7 @@ export const getAllMarketListings = async (
   return res.status(200).json(marketListings);
 };
 
-// GET: /api/market/:id
+// GET: /api/market/:listing_id
 export const getMarketListingById = async (
   req: TypedRequest<typeof GetMarketListingByIdSchema>,
   res: Response,
@@ -186,7 +189,7 @@ export const getMarketListingById = async (
 ) => {
   const marketListing = await MarketListing.findOne({
     where: {
-      id: req.params.id,
+      id: req.params.listing_id,
     },
     attributes: [
       [col("MarketListing.id"), "listing_id"],
@@ -276,13 +279,12 @@ export const deleteMarketListing = async (
   }
 };
 
-// POST: /api/market/:id/buy
+// POST: /api/market/:listing_id/buy
 export const buyMarketListing = async (
   req: TypedRequest<typeof BuyMarketListingSchema>,
   res: Response,
   next: NextFunction,
 ) => {
-  const { id } = req.params;
   const { quantity } = req.body;
 
   const transaction = await database.transaction();
@@ -291,7 +293,10 @@ export const buyMarketListing = async (
     // get market listing to buy
     const marketListing = (await MarketListing.findOne({
       where: {
-        id: req.params.id,
+        id: req.params.listing_id,
+        user_id: {
+          [Op.ne]: req.user.id,
+        },
       },
       include: [
         {
@@ -303,7 +308,7 @@ export const buyMarketListing = async (
 
     if (!marketListing) {
       throw ApiError.notFound(
-        `market listing (id:${id}) does not exist or is unavailable`,
+        `market listing (id:${req.params.listing_id}) does not exist or is unavailable`,
       );
     }
 
@@ -350,6 +355,89 @@ export const buyMarketListing = async (
       name: marketListing.Card.name,
       quantity: quantity,
     });
+  } catch (err) {
+    await transaction.rollback();
+    return next(err);
+  }
+};
+
+// POST: /api/market/auto-buy
+export const autoBuyMarketListing = async (
+  req: TypedRequest<typeof AutoBuyMarketListingSchema>,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { name, max_price_per_card } = req.body;
+
+  const transaction = await database.transaction();
+
+  try {
+    const listings = (await MarketListing.findAll({
+      where: {
+        user_id: {
+          [Op.ne]: req.user.id,
+        },
+        price_per_card: {
+          [Op.lte]: max_price_per_card,
+        },
+      },
+      include: [
+        {
+          model: Card,
+          where: { name },
+        },
+      ],
+      order: [["price_per_card", "ASC"]],
+      transaction,
+    })) as (MarketListing & { Card: Card })[];
+
+    if (listings.length === 0) {
+      throw ApiError.notFound("no market listings match the details provided");
+    }
+
+    for (const listing of listings) {
+      if (listing.quantity < 1) continue;
+
+      const [updated] = await MarketListing.update(
+        { quantity: literal("quantity - 1") },
+        {
+          where: {
+            id: listing.id,
+            quantity: { [Op.gte]: 1 },
+          },
+          transaction,
+        },
+      );
+
+      if (updated === 0) continue; // purchase failed (may be deleted or already bought) -> try next
+
+      const [userCard, created] = await UserCard.findOrCreate({
+        where: {
+          user_id: req.user.id,
+          card_id: listing.card_id,
+        },
+        defaults: {
+          user_id: req.user.id,
+          card_id: listing.card_id,
+          quantity: 1,
+        },
+        transaction,
+      });
+
+      if (!created) {
+        await userCard.increment("quantity", {
+          by: 1,
+          transaction,
+        });
+      }
+
+      await transaction.commit();
+
+      return res.status(200).json({
+        name: listing.Card.name,
+        quantity: 1,
+      });
+    }
   } catch (err) {
     await transaction.rollback();
     return next(err);

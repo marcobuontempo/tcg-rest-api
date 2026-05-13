@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  autoBuyMarketListing,
   buyMarketListing,
   createMarketListing,
   deleteMarketListing,
@@ -7,29 +8,59 @@ import {
   getMarketListingById,
   getOwnMarketListings,
 } from "../controllers/market.controller.js";
-import { validate } from "../middlewares/validate.middleware.js";
+import { validateRequest } from "../middlewares/validateRequest.middleware.js";
 import {
+  AutoBuyMarketListingSchema,
   BuyMarketListingSchema,
   CreateMarketListingSchema,
   DeleteMarketListingSchema,
   GetAllMarketListingsSchema,
   GetMarketListingByIdSchema,
 } from "../../schemas/marketListing.schema.js";
+import { requireNoActiveBattle } from "../middlewares/requireNoActiveBattle.js";
 
 const router = Router();
 
 router.get("/me", getOwnMarketListings);
 
-router.get("/:id", validate(GetMarketListingByIdSchema), getMarketListingById);
+router.get(
+  "/:listing_id",
+  validateRequest(GetMarketListingByIdSchema),
+  getMarketListingById,
+);
 
-router.get("/", validate(GetAllMarketListingsSchema), getAllMarketListings);
+router.get(
+  "/",
+  validateRequest(GetAllMarketListingsSchema),
+  getAllMarketListings,
+);
 
-router.post("/", validate(CreateMarketListingSchema), createMarketListing);
+router.post(
+  "/",
+  requireNoActiveBattle,
+  validateRequest(CreateMarketListingSchema),
+  createMarketListing,
+);
 
-router.delete("/:id", validate(DeleteMarketListingSchema), deleteMarketListing);
+router.delete(
+  "/:_listing_id",
+  requireNoActiveBattle,
+  validateRequest(DeleteMarketListingSchema),
+  deleteMarketListing,
+);
 
-router.post("/:id/buy", validate(BuyMarketListingSchema), buyMarketListing);
+router.post(
+  "/:listing_id/buy",
+  requireNoActiveBattle,
+  validateRequest(BuyMarketListingSchema),
+  buyMarketListing,
+);
 
-// router.patch("/:id", );
+router.post(
+  "/auto-buy",
+  requireNoActiveBattle,
+  validateRequest(AutoBuyMarketListingSchema),
+  autoBuyMarketListing,
+);
 
 export default router;

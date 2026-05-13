@@ -3,7 +3,7 @@ import { ApiError } from "../../utilities/error.util.js";
 import { hashSeed } from "../../utilities/seed.util.js";
 import { User } from "../../database/models/user.model.js";
 
-export const authenticateUser = async (
+export const requireValidUserSeed = async (
   req: Request,
   res: Response,
   next: NextFunction,

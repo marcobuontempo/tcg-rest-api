@@ -19,7 +19,7 @@ export class MarketListing extends Model<
   declare user_id: ForeignKey<MarketListingAttributes["user_id"]>;
   declare card_id: ForeignKey<MarketListingAttributes["card_id"]>;
   declare quantity: CreationOptional<MarketListingAttributes["quantity"]>;
-  declare price: MarketListingAttributes["price"];
+  declare price_per_card: MarketListingAttributes["price_per_card"];
   declare created_at: CreationOptional<MarketListingAttributes["created_at"]>;
   declare updated_at: CreationOptional<MarketListingAttributes["updated_at"]>;
 }
@@ -56,7 +56,7 @@ MarketListing.init(
       validate: { min: 0 },
     },
 
-    price: {
+    price_per_card: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: { min: 0, max: 1_000_000_00 },
