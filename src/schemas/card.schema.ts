@@ -4,7 +4,7 @@ import config from "../config/index.js";
 export type CardAttributes = z.infer<typeof CardSchema>;
 
 export const CardSchema = z.object({
-  id: z.number().int("'id' must be an integer"),
+  id: z.int("'id' must be an integer"),
   name: z
     .string("'name' must be a string")
     .min(1, "'name' length must be 1-32 characters")
@@ -47,10 +47,22 @@ export const GetAllCardsSchema = z.object({
         name: CardSchema.shape.name,
         type: CardSchema.shape.type,
         rarity: CardSchema.shape.rarity,
-        min_attack: z.coerce.number("'min_attack' must be a number"),
-        max_attack: z.coerce.number("'max_attack' must be a number"),
-        min_defense: z.coerce.number("'min_defense' must be a number"),
-        max_defense: z.coerce.number("'max_defense' must be a number"),
+        min_attack: z.coerce
+          .number("'min_attack' must be a number")
+          .int("'min_attack' must be an integer")
+          .nonnegative("'min_attack' must not be negative"),
+        max_attack: z.coerce
+          .number("'max_attack' must be a number")
+          .int("'max_attack' must be an integer")
+          .nonnegative("'max_attack' must not be negative"),
+        min_defense: z.coerce
+          .number("'min_defense' must be a number")
+          .int("'min_defense' must be an integer")
+          .nonnegative("'min_defense' must not be negative"),
+        max_defense: z.coerce
+          .number("'max_defense' must be a number")
+          .int("'max_defense' must be an integer")
+          .nonnegative("'max_defense' must not be negative"),
         sort_by: z.enum(
           allowedSortFields,
           `'sort_by' must be one of: ${allowedSortFields.join(", ")}`,

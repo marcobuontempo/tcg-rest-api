@@ -3,8 +3,8 @@ import { cache } from "../../cache/index.js";
 import { selectRandomCards } from "../../utilities/packs.util.js";
 import { UserCard } from "../../database/models/userCard.model.js";
 import { formatCardForResponse } from "../../utilities/cards.util.js";
-import z from "zod";
 
+// GET: /api/packs
 export const getAllPacksData = async (
   req: Request,
   res: Response,
@@ -17,6 +17,7 @@ export const getAllPacksData = async (
     );
 };
 
+// POST: /api/packs/open
 export const openPack = async (
   req: Request,
   res: Response,

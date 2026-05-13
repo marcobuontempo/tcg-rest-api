@@ -24,8 +24,11 @@ export class ApiError {
     return new ApiError(403, displayMessage);
   }
 
-  static notFound() {
-    return new ApiError(404, "Resource Not Found");
+  static notFound(message?: string) {
+    const displayMessage = message
+      ? `Resource Not Found - ${message}`
+      : "Resource Not Found";
+    return new ApiError(404, displayMessage);
   }
 
   static internal(message: string, error: Error | unknown) {

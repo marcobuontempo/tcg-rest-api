@@ -2,10 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { ApiError } from "../../utilities/error.util.js";
 import { UserCard } from "../../database/models/userCard.model.js";
 import { Card } from "../../database/models/card.model.js";
-import z from "zod";
 import { BattleSchema } from "../../schemas/battle.schema.js";
 import { TypedRequest } from "../../types/express.js";
 
+// POST: /api/battle/play
 export const playBattle = async (
   req: TypedRequest<typeof BattleSchema>,
   res: Response,

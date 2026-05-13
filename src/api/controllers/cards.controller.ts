@@ -4,6 +4,7 @@ import { TypedRequest } from "../../types/express.js";
 import { Op } from "sequelize";
 import { Card } from "../../database/models/card.model.js";
 
+// GET: /api/cards
 export const getAllCardsData = async (
   req: TypedRequest<typeof GetAllCardsSchema>,
   res: Response,
@@ -17,7 +18,7 @@ export const getAllCardsData = async (
     max_attack,
     min_defense,
     max_defense,
-    sort_by,
+    sort_by, // defined by schema
   } = req.query;
 
   // build query statement

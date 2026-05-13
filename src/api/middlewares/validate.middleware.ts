@@ -34,5 +34,9 @@ export const validate =
       Object.assign(req.params, result.data.params);
     }
 
+    if (result.data?.headers) {
+      Object.assign(req.headers, result.data.headers);
+    }
+
     return next();
   };

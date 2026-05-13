@@ -3,6 +3,7 @@ import { UpdateUsernameSchema } from "../../schemas/user.schema.js";
 import z from "zod";
 import { TypedRequest } from "../../types/express.js";
 
+// GET: /api/user/me
 export const getUserData = async (
   req: Request,
   res: Response,
@@ -16,6 +17,7 @@ export const getUserData = async (
   });
 };
 
+// PATCH: /api/user/me
 export const updateUsername = async (
   req: TypedRequest<typeof UpdateUsernameSchema>,
   res: Response,
@@ -35,6 +37,7 @@ export const updateUsername = async (
   });
 };
 
+// DELETE: /api/user/me
 export async function deleteUser(
   req: Request,
   res: Response,

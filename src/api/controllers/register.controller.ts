@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { generateSeed, hashSeed } from "../../utilities/seed.util.js";
 import { User } from "../../database/models/user.model.js";
 
+// POST: /api/register
 export const registerUser = async (
   req: Request,
   res: Response,

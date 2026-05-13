@@ -65,6 +65,8 @@ Note: must include seed in request headers `x-user-seed`
 
 `GET: /cards`
 
+`params: name, type, rarity, min_attack, max_attack, min_defense, max_defense, sort_by`
+
 #### Battle Cards
 
 `POST: /battle/play`
@@ -73,12 +75,28 @@ Note: must include seed in request headers `x-user-seed`
 
 _Note: `"cards"` must contain the name of cards that the user actually owns_
 
-#### Create Card Listing
+#### Create Market Listing
 
 `POST: /market`
 
 `body: { "name": "foo", "quantity": 5, price: 100 }`
 
 _Note: `"cards"` must contain the name of cards that the user actually owns_
+
+#### Get Market Listing By Id
+
+`GET: /market/:id`
+
+#### Get All User Market Listings
+
+`GET: /market/me`
+
+#### Get All Market Listings
+
+`GET: /market`
+
+`params: name, type, rarity, min_price, max_price, sort_by`
+
+_Note: only the first 10 matching results are returned_
 
 ### Admin Routes
