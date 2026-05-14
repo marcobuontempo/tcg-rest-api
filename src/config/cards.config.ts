@@ -3,11 +3,28 @@ import { CardAttributes } from "../schemas/card.schema.js";
 export const cards: {
   types: readonly string[];
   rarities: readonly string[];
+  typeAdvantageEffects: {
+    notEffective: number;
+    normal: number;
+    superEffective: number;
+  };
+  poolcount: number;
+  poolsize: number;
   default: Omit<CardAttributes, "id" | "created_at" | "updated_at">[];
 } = {
   types: ["bug", "tree", "cloud", "shell"] as const,
 
   rarities: ["kilo", "mega", "giga", "tera", "peta", "exa"] as const,
+
+  typeAdvantageEffects: {
+    notEffective: 0.8,
+    normal: 1,
+    superEffective: 1.25,
+  },
+
+  poolcount: 10,
+
+  poolsize: 10,
 
   default: [
     {
@@ -15,38 +32,38 @@ export const cards: {
       type: "bug",
       rarity: "kilo",
       drop_rate: 10000,
-      attack: 10000,
-      defense: 10000,
+      attack: 5000,
+      defense: 5000,
     },
     {
       name: "bar",
       type: "cloud",
       rarity: "kilo",
-      drop_rate: 10000,
-      attack: 10000,
-      defense: 10000,
+      drop_rate: 9500,
+      attack: 6000,
+      defense: 1000,
     },
     {
       name: "baz",
       type: "shell",
       rarity: "kilo",
-      drop_rate: 10000,
-      attack: 10000,
-      defense: 10000,
+      drop_rate: 9000,
+      attack: 6000,
+      defense: 500,
     },
     {
       name: "quux",
       type: "tree",
       rarity: "kilo",
-      drop_rate: 10000,
-      attack: 10000,
+      drop_rate: 5000,
+      attack: 100,
       defense: 10000,
     },
     {
       name: "corge",
       type: "tree",
       rarity: "kilo",
-      drop_rate: 10000,
+      drop_rate: 1000,
       attack: 10000,
       defense: 10000,
     },

@@ -6,8 +6,12 @@ import { BattleSchema } from "../../schemas/battle.schema.js";
 import { TypedRequest } from "../../types/express.js";
 import { Op } from "sequelize";
 import { cache } from "../../cache/index.js";
+import {
+  generateCardList,
+  simulateBattle,
+} from "../../utilities/battle.util.js";
 
-// POST: /api/battle/play
+// POST: /api/battle/:difficulty
 export const playBattle = async (
   req: TypedRequest<typeof BattleSchema>,
   res: Response,
@@ -30,26 +34,24 @@ export const playBattle = async (
     // verify all cards are actually owned by user
     // join cards -> usercards, and find all matching card names provided
     const userCards = (await UserCard.findAll({
-      where: {
-        user_id: req.user.id,
-      },
+      where: { user_id: req.user.id },
       include: [
         {
           model: Card,
-          where: {
-            name: {
-              [Op.in]: cardNames,
-            },
-          },
+          where: { name: { [Op.in]: cardNames } },
         },
       ],
     })) as (UserCard & { Card: Card })[];
 
-    // check there user owns the valid amount of cards
+    // check the user owns the valid amount of cards
+    let playerCards: Card["dataValues"][] = [];
     for (const card of userCards) {
       const cardName = card.Card.name;
       const userOwnedQuantity = card.quantity;
       const requestedCardcount = cardNamesCount.get(cardName)!;
+      for (let i = 0; i < requestedCardcount; i++) {
+        playerCards.push(card.Card["dataValues"]);
+      }
       if (requestedCardcount > userOwnedQuantity) {
         throw ApiError.badRequest(
           `user does not have enough copies of '${cardName}' (owned: ${userOwnedQuantity}, requested: ${requestedCardcount})`,
@@ -64,15 +66,18 @@ export const playBattle = async (
       );
     }
 
-    const result = Math.random() > 0.5 ? "win" : "loss";
+    const opponentCards = generateCardList(req.body.difficulty, 5);
+
+    const { winner, battleLog } = simulateBattle(playerCards, opponentCards);
 
     // remove user from active battles list
     cache.battle.delete(req.user.id);
 
     return res.status(200).json({
-      result: result,
+      result: winner,
       win_amount: 0,
       balance: 0,
+      battle_log: battleLog,
     });
   } catch (err) {
     // remove user from active battles list

@@ -69,11 +69,12 @@ Note: must include seed in request headers `x-user-seed`
 
 #### Battle Cards
 
-`POST: /battle/play`
+`POST: /battle`
 
-`body: { "cards": [ "foo", "bar", "baz", "quux", "corge" ] }`
+`body: { "cards": [ "foo", "bar", "baz", "quux", "corge" ], "difficulty: 10 }`
 
 _Note: `"cards"` must contain the name of cards that the user actually owns_
+_Note: `"difficulty"` must be between 1-10_
 
 #### Create Market Listing
 
