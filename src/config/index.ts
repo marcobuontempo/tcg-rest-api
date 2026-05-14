@@ -3,12 +3,16 @@ import { server } from "./server.config.js";
 import { database } from "./database.config.js";
 import { game } from "./game.config.js";
 import { cards } from "./cards.config.js";
+import { battle } from "./battle.config.js";
+import { packs } from "./packs.config.js";
 
 export const config = {
   server,
   database,
   game,
   cards,
+  battle,
+  packs,
 };
 
 export default config;

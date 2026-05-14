@@ -19,24 +19,27 @@ export const MarketListingSchema = z.object({
   updated_at: z.date("'updated_at' must be a date"),
 });
 
-export const CreateMarketListingSchema = z.object({
-  body: z.strictObject(
-    {
-      name: CardSchema.shape.name,
-      quantity: MarketListingSchema.shape.quantity,
-      price_per_card: z
-        .number("'price' must be a number")
-        .min(1, "'price' must be 1-1,000,000")
-        .max(1_000_000, "'price' must be 1-1,000,000")
-        .refine(
-          (value) => Number.isInteger(value * 100),
-          "'price' must have at most 2 decimal places'",
-        )
-        .transform((value) => Math.round(value * 100)),
-    },
-    "invalid request body fields",
-  ),
-});
+export const CreateMarketListingSchema = z.object(
+  {
+    body: z.strictObject(
+      {
+        name: CardSchema.shape.name,
+        quantity: MarketListingSchema.shape.quantity,
+        price_per_card: z
+          .number("'price' must be a number")
+          .min(1, "'price' must be 1-1,000,000")
+          .max(1_000_000, "'price' must be 1-1,000,000")
+          .refine(
+            (value) => Number.isInteger(value * 100),
+            "'price' must have at most 2 decimal places'",
+          )
+          .transform((value) => Math.round(value * 100)),
+      },
+      "invalid request body fields",
+    ),
+  },
+  "invalid request fields",
+);
 
 const allowedSortFields = [
   "type",
@@ -107,7 +110,7 @@ export const DeleteMarketListingSchema = z.object(
       "invalid request params fields",
     ),
   },
-  "invalid request params fields",
+  "invalid request fields",
 );
 
 export const BuyMarketListingSchema = z.object(

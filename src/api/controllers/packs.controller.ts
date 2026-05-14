@@ -3,6 +3,9 @@ import { cache } from "../../cache/index.js";
 import { selectRandomCards } from "../../utilities/packs.util.js";
 import { UserCard } from "../../database/models/userCard.model.js";
 import { formatCardForResponse } from "../../utilities/cards.util.js";
+import { TypedRequest } from "../../types/express.js";
+import { OpenPackSchema } from "../../schemas/packs.schema.js";
+import { ApiError } from "../../utilities/error.util.js";
 
 // GET: /api/packs
 export const getAllPacksData = async (
@@ -10,23 +13,26 @@ export const getAllPacksData = async (
   res: Response,
   next: NextFunction,
 ) => {
-  return res
-    .status(200)
-    .json(
-      "TBC: return all types of packs with different rarities. e.g. [ { name: basic, cards: x,y,z, cost: 5 } ]",
-    );
+  return res.status(200).json(cache.packs.information);
 };
 
 // POST: /api/packs/open
 export const openPack = async (
-  req: Request,
+  req: TypedRequest<typeof OpenPackSchema>,
   res: Response,
   next: NextFunction,
 ) => {
+  const { pack_name } = req.params;
+  const pack = cache.packs.data.get(pack_name);
+
+  if (!pack) {
+    return next(ApiError.badRequest("'pack_name' parameter is invalid"));
+  }
+
   let insertQuery: string[] = [];
   const pulledCards = selectRandomCards(
-    cache.cards.data,
-    cache.cards.cumulativeDropRates,
+    pack.cards,
+    pack.cumulitiveDropRate,
     5,
   ).map((card) => {
     insertQuery.push(
@@ -43,7 +49,5 @@ export const openPack = async (
                   updated_at = CURRENT_TIMESTAMP;
   `);
 
-  return res.status(200).json({
-    cards: pulledCards,
-  });
+  return res.status(200).json(pulledCards);
 };

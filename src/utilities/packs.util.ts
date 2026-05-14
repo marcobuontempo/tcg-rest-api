@@ -1,21 +1,21 @@
 import { randomInt } from "crypto";
-import { cache } from "../cache/index.js";
+import { Card } from "../database/models/card.model.js";
 
 export const selectRandomCards = (
-  cards: typeof cache.cards.data,
+  cards: Card[],
   cumulativeDropRates: number,
   count: number = 5,
 ) => {
-  const cardsPulled = [];
+  const selectedCards = [];
   for (let i = 0; i < count; i++) {
     let rand = randomInt(0, cumulativeDropRates + 1);
-    for (const [_key, card] of cards) {
+    for (const card of cards) {
       if (card.drop_rate >= rand) {
-        cardsPulled.push(card);
+        selectedCards.push(card);
         break;
       }
       rand -= card.drop_rate;
     }
   }
-  return cardsPulled;
+  return selectedCards;
 };

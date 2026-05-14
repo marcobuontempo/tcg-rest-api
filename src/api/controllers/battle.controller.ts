@@ -18,7 +18,7 @@ export const playBattle = async (
   next: NextFunction,
 ) => {
   // add user to active battles list
-  cache.battle.add(req.user.id);
+  cache.battle.active.add(req.user.id);
 
   try {
     // get user cards from req.body and normalise
@@ -44,13 +44,13 @@ export const playBattle = async (
     })) as (UserCard & { Card: Card })[];
 
     // check the user owns the valid amount of cards
-    let playerCards: Card["dataValues"][] = [];
+    let playerCards: Card[] = [];
     for (const card of userCards) {
       const cardName = card.Card.name;
       const userOwnedQuantity = card.quantity;
       const requestedCardcount = cardNamesCount.get(cardName)!;
       for (let i = 0; i < requestedCardcount; i++) {
-        playerCards.push(card.Card["dataValues"]);
+        playerCards.push(card.Card);
       }
       if (requestedCardcount > userOwnedQuantity) {
         throw ApiError.badRequest(
@@ -70,18 +70,51 @@ export const playBattle = async (
 
     const { winner, battleLog } = simulateBattle(playerCards, opponentCards);
 
+    // burn random card if player loses
+    let burnedCard = null;
+    if (winner === "opponent") {
+      // pick a random card
+      const randomCardName =
+        playerCards[Math.floor(Math.random() * playerCards.length)].name;
+      const randomCard = userCards.find(
+        (card) => card.Card.name === randomCardName,
+      );
+
+      if (!randomCard) {
+        return next(ApiError.badRequest("could not process card burn"));
+      }
+
+      // save reference to card values
+      burnedCard = {
+        name: randomCard.Card.name,
+        type: randomCard.Card.type,
+        rarity: randomCard.Card.rarity,
+        attack: randomCard.Card.attack,
+        defense: randomCard.Card.defense,
+      };
+
+      if (randomCard.quantity === 1) {
+        await randomCard.destroy();
+      } else {
+        await randomCard.decrement("quantity", {
+          by: 1,
+        });
+      }
+    }
+
     // remove user from active battles list
-    cache.battle.delete(req.user.id);
+    cache.battle.active.delete(req.user.id);
 
     return res.status(200).json({
-      result: winner,
+      result: winner === "player" ? "win" : "lose",
+      burned_card: burnedCard,
       win_amount: 0,
       balance: 0,
       battle_log: battleLog,
     });
   } catch (err) {
     // remove user from active battles list
-    cache.battle.delete(req.user.id);
+    cache.battle.active.delete(req.user.id);
     return next(err);
   }
 };

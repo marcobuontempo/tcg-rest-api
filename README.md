@@ -59,7 +59,7 @@ Note: must include seed in request headers `x-user-seed`
 
 #### Open Pack
 
-`POST: /packs/open`
+`POST: /packs/:pack_name/open`
 
 #### Get All Cards Information
 

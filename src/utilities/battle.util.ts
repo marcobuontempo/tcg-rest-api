@@ -3,7 +3,7 @@ import config from "../config/index.js";
 import { Card } from "../database/models/card.model.js";
 
 export const generateCardList = (difficulty: number, cardCount = 5) => {
-  const pool = cache.cards.pools.get(difficulty);
+  const pool = cache.battle.difficultyPools.get(difficulty);
 
   if (!pool || pool.length === 0) {
     throw new Error(`no cards found for difficulty ${difficulty}`);
@@ -19,6 +19,8 @@ export const generateCardList = (difficulty: number, cardCount = 5) => {
   return result;
 };
 
+type BattleParticipants = "player" | "opponent";
+
 type BattleBaseEvent = {
   message: string;
 };
@@ -30,7 +32,7 @@ type BattleStateEvent = BattleBaseEvent & {
 type BattleAttackEvent = BattleBaseEvent & {
   state: "playing";
   turn: number;
-  current_attacker: "player" | "opponent";
+  current_attacker: BattleParticipants;
   attack_amount: number;
   type_effective: string;
 };
@@ -148,7 +150,7 @@ export const simulateBattle = (
     turnCount += 1;
   }
 
-  let winner = "opponent";
+  let winner: BattleParticipants = "opponent";
   if (turnCount >= config.game.maxBattleTurns) {
     if (cardCount.player > 0 && cardCount.opponent > 0) {
       battleLog.push({

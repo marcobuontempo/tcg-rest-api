@@ -1,30 +1,15 @@
-import { CardAttributes } from "../schemas/card.schema.js";
+import type { CardAttributes } from "../schemas/card.schema.js";
 
-export const cards: {
-  types: readonly string[];
-  rarities: readonly string[];
-  typeAdvantageEffects: {
-    notEffective: number;
-    normal: number;
-    superEffective: number;
-  };
-  poolcount: number;
-  poolsize: number;
-  default: Omit<CardAttributes, "id" | "created_at" | "updated_at">[];
-} = {
+export const cards = {
   types: ["bug", "tree", "cloud", "shell"] as const,
 
   rarities: ["kilo", "mega", "giga", "tera", "peta", "exa"] as const,
 
   typeAdvantageEffects: {
-    notEffective: 0.8,
+    notEffective: 0.9,
     normal: 1,
-    superEffective: 1.25,
+    superEffective: 1.15,
   },
-
-  poolcount: 10,
-
-  poolsize: 10,
 
   default: [
     {
@@ -259,5 +244,5 @@ export const cards: {
       attack: 10000,
       defense: 10000,
     },
-  ],
+  ] as const,
 };

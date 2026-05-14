@@ -16,10 +16,13 @@ export const BattleSchema = z.object(
         difficulty: z.coerce
           .number("'difficulty' must not be missing")
           .int("'difficulty' must be an integer")
-          .min(1, `'difficulty' must be between 1-${config.cards.poolcount}`)
+          .min(
+            1,
+            `'difficulty' must be between 1-${config.battle.difficultyPoolCount}`,
+          )
           .max(
-            config.cards.poolcount,
-            `'difficulty' must be between 1-${config.cards.poolcount}`,
+            config.battle.difficultyPoolCount,
+            `'difficulty' must be between 1-${config.battle.difficultyPoolCount}`,
           ),
       },
       "invalid request body fields",
