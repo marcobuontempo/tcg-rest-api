@@ -14,6 +14,7 @@ export const UserSchema = z.object({
     .int("'balance' must be an integer")
     .nonnegative("'balance' must not be negative"),
   xp: z.int("'xp' must be an integer").nonnegative("'xp' must not be negative"),
+  last_daily_pack_at: z.date("'last_daily_pack_at' must be a date"),
   created_at: z.date("'created_at' must be a date"),
   updated_at: z.date("'updated_at' must be a date"),
 });

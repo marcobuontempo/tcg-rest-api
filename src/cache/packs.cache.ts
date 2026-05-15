@@ -6,7 +6,7 @@ type PackContents = (typeof config.packs.types)[PackName];
 
 type PackData = {
   cards: Card[];
-  cumulitiveDropRate: number;
+  cumulativeDropRate: number;
   cost: number;
 };
 
@@ -51,7 +51,7 @@ export const populatePacksCache = async (dbCards: Card[]) => {
       );
       packs.data.set(name as PackName, {
         cards: filteredCards,
-        cumulitiveDropRate: cumulativeDropRate,
+        cumulativeDropRate: cumulativeDropRate,
         cost: Math.round(scaledPrice / 500) * 500,
       });
     }

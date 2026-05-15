@@ -1,5 +1,3 @@
-import config from "./index.js";
-
 export const packs = {
   types: {
     basic: ["kilo"],

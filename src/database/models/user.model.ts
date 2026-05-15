@@ -17,6 +17,7 @@ export class User extends Model<
   declare username: CreationOptional<UserAttributes["username"]>;
   declare balance: CreationOptional<UserAttributes["balance"]>;
   declare xp: CreationOptional<UserAttributes["xp"]>;
+  declare last_daily_pack_at: CreationOptional<UserAttributes["last_daily_pack_at"]>;
   declare created_at: CreationOptional<UserAttributes["created_at"]>;
   declare updated_at: CreationOptional<UserAttributes["updated_at"]>;
 }
@@ -54,6 +55,12 @@ User.init(
       allowNull: false,
       defaultValue: 0,
       validate: { min: 0 },
+    },
+
+    last_daily_pack_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: null,
     },
 
     created_at: DataTypes.DATE,

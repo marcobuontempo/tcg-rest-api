@@ -6,7 +6,10 @@ export const OpenPackSchema = z.object(
     params: z.strictObject(
       {
         pack_name: z.enum(
-          Object.keys(config.packs.types),
+          Object.keys(config.packs.types) as [
+            keyof typeof config.packs.types,
+            ...(keyof typeof config.packs.types)[],
+          ],
           `'pack_name' must be one of: ${Object.keys(config.packs.types).join(", ")}`,
         ),
       },

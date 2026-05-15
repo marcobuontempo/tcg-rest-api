@@ -57,6 +57,13 @@ Note: must include seed in request headers `x-user-seed`
 
 `GET: /packs`
 
+#### Claim Daily Pack
+
+`POST: /packs/daily/open`
+
+_Note: opens 2x 'basic' pack for free_
+_Note: can be claimed once per day, UTC time_
+
 #### Open Pack
 
 `POST: /packs/:pack_name/open`
