@@ -14,6 +14,7 @@ import { col, literal, Op } from "sequelize";
 import { ApiError } from "../../utilities/error.util.js";
 import { MarketListing } from "../../database/models/marketListing.model.js";
 import { TypedRequest } from "../../types/express.js";
+import { User } from "../../database/models/user.model.js";
 
 // POST: /api/market
 export const createMarketListing = async (
@@ -103,7 +104,7 @@ export const getOwnMarketListings = async (
       [col("Card.attack"), "attack"],
       [col("Card.defense"), "defense"],
       "quantity",
-      "price",
+      "price_per_card",
     ],
     include: [
       {
@@ -140,15 +141,15 @@ export const getAllMarketListings = async (
   if (rarity) searchQuery.rarity = rarity;
 
   if (min_price_per_card || max_price_per_card) {
-    searchQuery.price = {};
+    searchQuery.price_per_card = {};
     if (min_price_per_card)
-      searchQuery.defense[Op.gte] = Number(min_price_per_card);
+      searchQuery.price_per_card[Op.gte] = Number(min_price_per_card);
     if (max_price_per_card)
-      searchQuery.defense[Op.lte] = Number(max_price_per_card);
+      searchQuery.price_per_card[Op.lte] = Number(max_price_per_card);
   }
 
-  // default to sorting by price (and transform "newest" to correct column)
-  let sortBy: string = sort_by || "price";
+  // default to sorting by price (and transform "newest" to actual column name: "created_at")
+  let sortBy: string = sort_by || "price_per_card";
   let sortOrder = "ASC";
   if (sortBy === "newest") {
     sortBy = "created_at";
@@ -165,7 +166,7 @@ export const getAllMarketListings = async (
       [col("Card.attack"), "attack"],
       [col("Card.defense"), "defense"],
       "quantity",
-      [literal("price / 100.0"), "price"],
+      [literal("price_per_card / 100.0"), "price_per_card"],
     ],
     include: [
       {
@@ -199,7 +200,7 @@ export const getMarketListingById = async (
       [col("Card.attack"), "attack"],
       [col("Card.defense"), "defense"],
       "quantity",
-      [literal("price / 100.0"), "price"],
+      [literal("price_per_card / 100.0"), "price_per_card"],
     ],
     include: [
       {
@@ -230,7 +231,7 @@ export const deleteMarketListing = async (
   try {
     const marketListing = await MarketListing.findOne({
       where: {
-        id: req.params.id,
+        id: req.params.listing_id,
       },
       transaction,
     });
@@ -294,9 +295,6 @@ export const buyMarketListing = async (
     const marketListing = (await MarketListing.findOne({
       where: {
         id: req.params.listing_id,
-        user_id: {
-          [Op.ne]: req.user.id,
-        },
       },
       include: [
         {
@@ -315,6 +313,19 @@ export const buyMarketListing = async (
     if (marketListing.quantity < quantity) {
       throw ApiError.badRequest(
         `market listing does not have sufficient quantity available (has: ${marketListing.quantity}, requested: ${quantity})`,
+      );
+    }
+
+    if (marketListing.user_id === req.user.id) {
+      throw ApiError.badRequest(
+        "user cannot purchase their own market listing",
+      );
+    }
+
+    const payment = marketListing.price_per_card * quantity;
+    if (payment > req.user.balance) {
+      throw ApiError.badRequest(
+        `'user' does not have sufficient funds for the total payment amount (has: ${req.user.balance}, required: ${payment / 100})`,
       );
     }
 
@@ -349,6 +360,15 @@ export const buyMarketListing = async (
       });
     }
 
+    // decrease buyer's balance
+    await req.user.decrement("balance", { by: payment, transaction });
+    // increase seller's balance
+    await User.increment("balance", {
+      where: { id: marketListing.user_id },
+      by: payment,
+      transaction,
+    });
+
     await transaction.commit();
 
     return res.status(200).json({
@@ -378,7 +398,10 @@ export const autoBuyMarketListing = async (
           [Op.ne]: req.user.id,
         },
         price_per_card: {
-          [Op.lte]: max_price_per_card,
+          [Op.lte]: Math.min(max_price_per_card, req.user.balance),
+        },
+        quantity: {
+          [Op.gte]: 1,
         },
       },
       include: [
@@ -392,12 +415,12 @@ export const autoBuyMarketListing = async (
     })) as (MarketListing & { Card: Card })[];
 
     if (listings.length === 0) {
-      throw ApiError.notFound("no market listings match the details provided");
+      throw ApiError.notFound(
+        "no market listings match the details provided and/or are below the user's balance",
+      );
     }
 
     for (const listing of listings) {
-      if (listing.quantity < 1) continue;
-
       const [updated] = await MarketListing.update(
         { quantity: literal("quantity - 1") },
         {
@@ -405,6 +428,7 @@ export const autoBuyMarketListing = async (
             id: listing.id,
             quantity: { [Op.gte]: 1 },
           },
+          validate: true,
           transaction,
         },
       );
@@ -430,6 +454,16 @@ export const autoBuyMarketListing = async (
           transaction,
         });
       }
+
+      const payment = listing.price_per_card;
+      // decrease buyer's balance
+      await req.user.decrement("balance", { by: payment, transaction });
+      // increase seller's balance
+      await User.increment("balance", {
+        where: { id: listing.user_id },
+        by: payment,
+        transaction,
+      });
 
       await transaction.commit();
 

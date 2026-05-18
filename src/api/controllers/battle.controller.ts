@@ -10,6 +10,9 @@ import {
   generateCardList,
   simulateBattle,
 } from "../../utilities/battle.util.js";
+import { database } from "../../database/connection.js";
+import config from "../../config/index.js";
+import { User } from "../../database/models/user.model.js";
 
 // POST: /api/battle/:difficulty
 export const playBattle = async (
@@ -19,6 +22,8 @@ export const playBattle = async (
 ) => {
   // add user to active battles list
   cache.battle.active.add(req.user.id);
+
+  const transaction = await database.transaction();
 
   try {
     // get user cards from req.body and normalise
@@ -41,6 +46,7 @@ export const playBattle = async (
           where: { name: { [Op.in]: cardNames } },
         },
       ],
+      transaction,
     })) as (UserCard & { Card: Card })[];
 
     // check the user owns the valid amount of cards
@@ -94,13 +100,31 @@ export const playBattle = async (
       };
 
       if (randomCard.quantity === 1) {
-        await randomCard.destroy();
+        await randomCard.destroy({ transaction });
       } else {
-        await randomCard.decrement("quantity", {
-          by: 1,
-        });
+        await randomCard.decrement({ quantity: 1 }, { transaction });
       }
     }
+
+    const reward =
+      winner === "player"
+        ? Math.floor(
+            config.battle.baseReward *
+              Math.pow(
+                config.battle.rewardScaleFactor,
+                req.body.difficulty - 1,
+              ),
+          )
+        : 0;
+    const xpGain = Math.round(reward * config.battle.xpMultiplier);
+
+    // apply reward and xp gains
+    await req.user.increment({ balance: reward, xp: xpGain }, { transaction });
+    req.user.balance += reward;
+    req.user.xp += xpGain;
+
+    // commit
+    await transaction.commit();
 
     // remove user from active battles list
     cache.battle.active.delete(req.user.id);
@@ -108,8 +132,10 @@ export const playBattle = async (
     return res.status(200).json({
       result: winner === "player" ? "win" : "lose",
       burned_card: burnedCard,
-      win_amount: 0,
-      balance: 0,
+      win_amount: Math.round(reward * 100) / 100,
+      xp_gain: xpGain,
+      current_balance: Math.round(req.user.balance * 100) / 100,
+      currnet_xp: req.user.xp,
       battle_log: battleLog,
     });
   } catch (err) {

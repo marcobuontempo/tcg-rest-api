@@ -43,7 +43,7 @@ router.post(
 );
 
 router.delete(
-  "/:_listing_id",
+  "/:listing_id",
   requireNoActiveBattle,
   validateRequest(DeleteMarketListingSchema),
   deleteMarketListing,

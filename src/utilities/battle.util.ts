@@ -35,6 +35,7 @@ type BattleAttackEvent = BattleBaseEvent & {
   current_attacker: BattleParticipants;
   attack_amount: number;
   type_effective: string;
+  critical_hit: boolean;
 };
 
 type BattleEvent = BattleStateEvent | BattleAttackEvent;
@@ -102,12 +103,13 @@ export const simulateBattle = (
     }
 
     // add randomness to attack
+    const criticalHit = Math.random() < 0.01;
     const attackVariance = Math.random() * (1.05 - 0.95) + 0.95;
 
     // determine attack amount
-    const attackEffectiveAmount = Math.round(
-      attacker.card.attack * attackMultiplier * attackVariance,
-    );
+    const attackEffectiveAmount = criticalHit
+      ? defender.health
+      : Math.round(attacker.card.attack * attackMultiplier * attackVariance);
     defender.health -= attackEffectiveAmount;
 
     let attackMessage = `${attacker.card.name} (${currentAttacker}) attacked ${defender.card.name} (${currentDefender})`;
@@ -121,6 +123,7 @@ export const simulateBattle = (
       current_attacker: currentAttacker,
       attack_amount: attackEffectiveAmount,
       type_effective: attackAdvantage,
+      critical_hit: criticalHit,
       message: attackMessage,
     });
 

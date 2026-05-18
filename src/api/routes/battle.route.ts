@@ -5,6 +5,6 @@ import { BattleSchema } from "../../schemas/battle.schema.js";
 
 const router = Router();
 
-router.post("/:difficulty", validateRequest(BattleSchema), playBattle);
+router.post("/", validateRequest(BattleSchema), playBattle);
 
 export default router;

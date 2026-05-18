@@ -12,8 +12,8 @@ export const MarketListingSchema = z.object({
     .int("'quantity' must be an integer")
     .min(1, "'quantity' must be more than 0"),
   price_per_card: z
-    .int("'price' must be an integer")
-    .min(1, "'price' must be 1-1,000,000")
+    .number("'price_per_card' must be an integer")
+    .min(1, "'price_per_card' must be 1-1,000,000")
     .max(1_000_000, "'price' must be 1-1,000,000"),
   created_at: z.date("'created_at' must be a date"),
   updated_at: z.date("'updated_at' must be a date"),
@@ -25,9 +25,9 @@ export const CreateMarketListingSchema = z.object(
       {
         name: CardSchema.shape.name,
         quantity: MarketListingSchema.shape.quantity,
-        price_per_card: z
-          .number("'price' must be a number")
-          .min(1, "'price' must be 1-1,000,000")
+        price_per_card: z.coerce
+          .number("'price_per_card' must be an integer")
+          .min(1, "'price_per_card' must be 1-1,000,000")
           .max(1_000_000, "'price' must be 1-1,000,000")
           .refine(
             (value) => Number.isInteger(value * 100),
@@ -143,8 +143,9 @@ export const AutoBuyMarketListingSchema = z.object(
           .nonnegative("'max_price_per_card' must not be negative")
           .refine(
             (value) => Number.isInteger(value * 100),
-            "'max_price_per_card' must have at most 2 decimal places'",
-          ),
+            "'price' must have at most 2 decimal places'",
+          )
+          .transform((value) => Math.round(value * 100)),
       },
       "invalid request body fields",
     ),

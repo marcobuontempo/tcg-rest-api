@@ -11,7 +11,7 @@ export const getUserData = async (
 ) => {
   return res.status(200).json({
     username: req.user.username,
-    balance: req.user.balance,
+    balance: Math.round(req.user.balance * 100) / 100,
     xp: req.user.xp,
     created_at: req.user.created_at,
   });
@@ -31,7 +31,7 @@ export const updateUsername = async (
 
   return res.status(200).json({
     username: user.username,
-    balance: user.balance,
+    balance: Math.round(req.user.balance * 100) / 100,
     xp: user.xp,
     created_at: user.created_at,
   });
