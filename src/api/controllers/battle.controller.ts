@@ -13,6 +13,7 @@ import {
 import { database } from "../../database/connection.js";
 import config from "../../config/index.js";
 import { User } from "../../database/models/user.model.js";
+import { UserStats } from "../../database/models/userStats.model.js";
 
 // POST: /api/battle/:difficulty
 export const playBattle = async (
@@ -119,9 +120,35 @@ export const playBattle = async (
     const xpGain = Math.round(reward * config.battle.xpMultiplier);
 
     // apply reward and xp gains
-    await req.user.increment({ balance: reward, xp: xpGain }, { transaction });
+    const inc: any = {
+      total_battles: 1,
+    };
+
+    if (winner === "player") inc.total_wins = 1;
+    if (winner === "opponent") inc.total_losses = 1;
+
+    await UserStats.increment(inc, {
+      where: { user_id: req.user.id },
+      transaction,
+    });
+
     req.user.balance += reward;
     req.user.xp += xpGain;
+
+    // update stats
+    await UserStats.increment(
+      {
+        total_battles: 1,
+        total_wins: winner === "player" ? 1 : 0,
+        total_losses: winner === "opponent" ? 1 : 0,
+      },
+      {
+        where: {
+          user_id: req.user.id,
+        },
+        transaction,
+      },
+    );
 
     // commit
     await transaction.commit();
@@ -132,10 +159,10 @@ export const playBattle = async (
     return res.status(200).json({
       result: winner === "player" ? "win" : "lose",
       burned_card: burnedCard,
-      win_amount: Math.round(reward * 100) / 100,
+      win_amount: reward / 100,
       xp_gain: xpGain,
-      current_balance: Math.round(req.user.balance * 100) / 100,
-      currnet_xp: req.user.xp,
+      current_balance: req.user.balance / 100,
+      current_xp: req.user.xp,
       battle_log: battleLog,
     });
   } catch (err) {

@@ -1,7 +1,9 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { UpdateUsernameSchema } from "../../schemas/user.schema.js";
-import z from "zod";
+import z, { includes } from "zod";
 import { TypedRequest } from "../../types/express.js";
+import { UserStats } from "../../database/models/userStats.model.js";
+import { ApiError } from "../../utilities/error.util.js";
 
 // GET: /api/user/me
 export const getUserData = async (
@@ -9,10 +11,18 @@ export const getUserData = async (
   res: Response,
   next: NextFunction,
 ) => {
+  const stats = await UserStats.findOne({
+    where: { user_id: req.user.id },
+    attributes: ["total_battles", "total_wins", "total_losses"],
+  });
+  if (!stats) {
+    throw ApiError.notFound("error fetching user stats");
+  }
   return res.status(200).json({
     username: req.user.username,
-    balance: Math.round(req.user.balance * 100) / 100,
+    balance: req.user.balance / 100,
     xp: req.user.xp,
+    stats: stats,
     created_at: req.user.created_at,
   });
 };
@@ -31,7 +41,7 @@ export const updateUsername = async (
 
   return res.status(200).json({
     username: user.username,
-    balance: Math.round(req.user.balance * 100) / 100,
+    balance: req.user.balance / 100,
     xp: user.xp,
     created_at: user.created_at,
   });
