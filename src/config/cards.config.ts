@@ -1,7 +1,5 @@
-import type { CardAttributes } from "../schemas/card.schema.js";
-
 export const cards = {
-  types: ["bug", "tree", "cloud", "shell"] as const,
+  types: ["bug", "tree", "cloud", "shell"] as const, // circular type-advantages (i.e. bug -> tree -> cloud -> shell -> bug)
 
   rarities: ["kilo", "mega", "giga", "tera", "peta", "exa"] as const,
 

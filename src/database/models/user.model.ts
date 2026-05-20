@@ -4,9 +4,11 @@ import {
   InferAttributes,
   InferCreationAttributes,
   CreationOptional,
+  NonAttribute,
 } from "sequelize";
 import { database } from "../connection.js";
 import { UserAttributes } from "../../schemas/user.schema.js";
+import { UserStats } from "./userStats.model.js";
 
 export class User extends Model<
   InferAttributes<User>,
@@ -17,7 +19,9 @@ export class User extends Model<
   declare username: CreationOptional<UserAttributes["username"]>;
   declare balance: CreationOptional<UserAttributes["balance"]>;
   declare xp: CreationOptional<UserAttributes["xp"]>;
-  declare last_daily_pack_at: CreationOptional<UserAttributes["last_daily_pack_at"]>;
+  declare last_daily_pack_at: CreationOptional<
+    UserAttributes["last_daily_pack_at"]
+  >;
   declare created_at: CreationOptional<UserAttributes["created_at"]>;
   declare updated_at: CreationOptional<UserAttributes["updated_at"]>;
 }

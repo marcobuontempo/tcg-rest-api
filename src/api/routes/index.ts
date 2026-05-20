@@ -7,6 +7,7 @@ import cardsRoute from "./cards.route.js";
 import marketRoute from "./market.route.js";
 import packsRoute from "./packs.route.js";
 import battleRoute from "./battle.route.js";
+import serverRoute from "./server.route.js";
 import { validateRequest } from "../middlewares/validateRequest.middleware.js";
 import { UserSeedHeadersSchema } from "../../schemas/user.schema.js";
 import { requireNoActiveBattle } from "../middlewares/requireNoActiveBattle.js";
@@ -58,6 +59,13 @@ router.use(
   requireValidUserSeed,
   requireNoActiveBattle,
   battleRoute,
+);
+
+router.use(
+  "/server",
+  validateRequest(UserSeedHeadersSchema),
+  requireValidUserSeed,
+  serverRoute,
 );
 
 export default router;

@@ -59,7 +59,7 @@ MarketListing.init(
     price_per_card: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      validate: { min: 0, max: 1_000_000_00 },
+      validate: { min: 1, max: 1_000_000_00 },
     },
 
     created_at: DataTypes.DATE,

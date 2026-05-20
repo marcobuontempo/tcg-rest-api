@@ -12,8 +12,8 @@ import {
 } from "../../utilities/battle.util.js";
 import { database } from "../../database/connection.js";
 import config from "../../config/index.js";
-import { User } from "../../database/models/user.model.js";
 import { UserStats } from "../../database/models/userStats.model.js";
+import { User } from "../../database/models/user.model.js";
 
 // POST: /api/battle/:difficulty
 export const playBattle = async (
@@ -120,35 +120,35 @@ export const playBattle = async (
     const xpGain = Math.round(reward * config.battle.xpMultiplier);
 
     // apply reward and xp gains
-    const inc: any = {
-      total_battles: 1,
-    };
-
-    if (winner === "player") inc.total_wins = 1;
-    if (winner === "opponent") inc.total_losses = 1;
-
-    await UserStats.increment(inc, {
-      where: { user_id: req.user.id },
-      transaction,
-    });
-
-    req.user.balance += reward;
-    req.user.xp += xpGain;
-
-    // update stats
-    await UserStats.increment(
+    await User.increment(
       {
-        total_battles: 1,
-        total_wins: winner === "player" ? 1 : 0,
-        total_losses: winner === "opponent" ? 1 : 0,
+        xp: xpGain,
+        balance: reward,
       },
       {
-        where: {
-          user_id: req.user.id,
-        },
+        where: { id: req.user.id },
         transaction,
       },
     );
+
+    // update stats
+    const statsIncrements: any = {
+      total_battles: 1,
+    };
+    cache.stats.total_battles += 1;
+    if (winner === "player") {
+      statsIncrements.total_wins = 1;
+      cache.stats.total_wins += 1;
+    }
+    if (winner === "opponent") {
+      statsIncrements.total_losses = 1;
+      cache.stats.total_losses += 1;
+    }
+
+    await UserStats.increment(statsIncrements, {
+      where: { user_id: req.user.id },
+      transaction,
+    });
 
     // commit
     await transaction.commit();
@@ -161,11 +161,12 @@ export const playBattle = async (
       burned_card: burnedCard,
       win_amount: reward / 100,
       xp_gain: xpGain,
-      current_balance: req.user.balance / 100,
-      current_xp: req.user.xp,
+      current_balance: (req.user.balance + reward) / 100,
+      current_xp: req.user.xp + xpGain,
       battle_log: battleLog,
     });
   } catch (err) {
+    await transaction.rollback();
     // remove user from active battles list
     cache.battle.active.delete(req.user.id);
     return next(err);

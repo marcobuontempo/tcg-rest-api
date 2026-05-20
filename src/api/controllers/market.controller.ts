@@ -455,6 +455,16 @@ export const autoBuyMarketListing = async (
         });
       }
 
+      // reduce quantity of seller's listing (or delete if quantity=0)
+      if (listing.quantity === 1) {
+        await listing.destroy({ transaction });
+      } else {
+        await listing.decrement("quantity", {
+          by: 1,
+          transaction,
+        });
+      }
+
       const payment = listing.price_per_card;
       // decrease buyer's balance
       await req.user.decrement("balance", { by: payment, transaction });

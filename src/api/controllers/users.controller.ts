@@ -1,9 +1,9 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { UpdateUsernameSchema } from "../../schemas/user.schema.js";
-import z, { includes } from "zod";
 import { TypedRequest } from "../../types/express.js";
 import { UserStats } from "../../database/models/userStats.model.js";
 import { ApiError } from "../../utilities/error.util.js";
+import { cache } from "../../cache/index.js";
 
 // GET: /api/user/me
 export const getUserData = async (
@@ -56,6 +56,8 @@ export async function deleteUser(
   const user = req.user;
 
   await user.destroy();
+
+  cache.stats.total_users -= 1;
 
   res.status(204).send();
 }
