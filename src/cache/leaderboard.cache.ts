@@ -13,7 +13,7 @@ type LeaderboardEntry = {
 
 export const leaderboard = {
   users: [] as LeaderboardEntry[],
-  updated: null as Date | null,
+  updated: null as string | null,
 };
 
 export const populateLeaderboardCache = async () => {
@@ -42,5 +42,5 @@ export const populateLeaderboardCache = async () => {
   );
 
   // update fetch timestamp
-  leaderboard.updated = new Date();
+  leaderboard.updated = new Date().toISOString();
 };

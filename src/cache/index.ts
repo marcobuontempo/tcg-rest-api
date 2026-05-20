@@ -1,3 +1,4 @@
+import cron from "node-cron";
 import { Card } from "../database/models/card.model.js";
 import { battle, populateBattleCache } from "./battle.cache.js";
 import { cards, populateCardCache } from "./cards.cache.js";
@@ -21,8 +22,13 @@ export const cacheStart = async () => {
   await populateBattleCache(dbCards);
   await populatePacksCache(dbCards);
 
-  await populateLeaderboardCache();
   await populateStatsCache();
+
+  await populateLeaderboardCache();
+  // warm leaderboard cache 60seconds (at minute start)
+  cron.schedule("0 * * * * *", async () => {
+    await populateLeaderboardCache();
+  });
 
   console.log("Populated cache");
 };

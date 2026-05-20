@@ -4,10 +4,15 @@ import cors from "cors";
 import { ApiError } from "../utilities/error.util.js";
 import { errorHandler } from "../api/middlewares/errorHandler.middleware.js";
 import router from "../api/routes/index.js";
+import rateLimit from "express-rate-limit";
 
 export const serverStart = async () => {
   // Initialise Express
   const app = express();
+
+  // Rate Limiter
+  app.use(rateLimit(config.limiter.burst)); // burst limit
+  app.use(rateLimit(config.limiter.global)); // global limit
 
   // Setup CORS
   app.use(cors());

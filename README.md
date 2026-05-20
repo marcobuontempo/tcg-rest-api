@@ -128,3 +128,9 @@ _Note: only the first 10 matching results are returned_
 `body: { "name": "foo", "max_price": 100 }`
 
 ### Admin Routes
+
+## Rate Limiting
+
+- Global Requests: 60 per minute
+- Burst: 3 per second
+- Registration: 1 per 10 seconds

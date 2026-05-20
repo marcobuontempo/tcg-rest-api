@@ -37,6 +37,13 @@ export class ApiError {
     return new ApiError(409, displayMessage);
   }
 
+  static tooManyRequests(message?: string) {
+    const displayMessage = message
+      ? `Too Many Requests - ${message}`
+      : "Too Many Requests";
+    return new ApiError(429, displayMessage);
+  }
+
   static internal(message: string, error: Error | unknown) {
     return new ApiError(500, `Internal Server Error - ${message}`, error);
   }

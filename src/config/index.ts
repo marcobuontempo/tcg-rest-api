@@ -5,6 +5,7 @@ import { game } from "./game.config.js";
 import { cards } from "./cards.config.js";
 import { battle } from "./battle.config.js";
 import { packs } from "./packs.config.js";
+import { limiter } from "./limiter.config.js";
 
 export const config = {
   server,
@@ -13,6 +14,7 @@ export const config = {
   cards,
   battle,
   packs,
+  limiter,
 };
 
 export default config;
