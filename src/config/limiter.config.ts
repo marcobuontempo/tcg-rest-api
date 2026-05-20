@@ -29,7 +29,7 @@ const baseLimiter: Partial<Options> = {
 };
 
 export const limiter: Record<
-  "global" | "burst" | "registration",
+  "global" | "burst" | "admin" | "registration",
   Partial<Options>
 > = {
   global: {
@@ -51,5 +51,12 @@ export const limiter: Record<
     ...baseLimiter,
     windowMs: 10 * 1000,
     limit: 1,
+  },
+
+  admin: {
+    // 5 requests per minute
+    ...baseLimiter,
+    windowMs: 60 * 1000,
+    limit: 5,
   },
 };

@@ -1,6 +1,6 @@
 import config from "../../config/index.js";
 import { Administrator } from "../../database/models/administrator.model.js";
-import { hashPassword } from "../../utilities/auth.util.js";
+import { comparePasswords, hashPassword } from "../../utilities/auth.util.js";
 
 export const adminBootstrap = async () => {
   const adminCount = (await Administrator.count()) ?? 0;

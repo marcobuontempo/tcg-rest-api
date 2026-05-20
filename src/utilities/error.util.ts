@@ -14,8 +14,11 @@ export class ApiError {
     return new ApiError(400, displayMessage);
   }
 
-  static unauthorised() {
-    return new ApiError(401, "Unauthorised Access");
+  static unauthorised(message?: string) {
+    const displayMessage = message
+      ? `Unauthorised Access - ${message}`
+      : "Unauthorised Access";
+    return new ApiError(401, displayMessage);
   }
 
   static forbidden(message?: string) {

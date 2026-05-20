@@ -8,6 +8,6 @@ export const hashPassword = async (password: string) => {
   );
 };
 
-export const comparePassword = async (password: string, hash: string) => {
-  return bcrypt.compare(password, hash);
+export const comparePasswords = async (password: string, hash: string) => {
+  return bcrypt.compare(password + config.auth.passwordPepper, hash);
 };
