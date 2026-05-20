@@ -1,7 +1,11 @@
 import { ipKeyGenerator, type Options } from "express-rate-limit";
 import { ApiError } from "../utilities/error.util.js";
+import { server } from "./server.config.js";
 
 const baseLimiter: Partial<Options> = {
+  // disable for development environment
+  skip: (req, res) => server.env === "development",
+
   // set headers
   headers: true,
   standardHeaders: "draft-8",

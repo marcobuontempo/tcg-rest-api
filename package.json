@@ -29,7 +29,10 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "NODE_ENV=development tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "NODE_ENV=production node dist/index.js",
+    "benchmark": "tsx src/index.ts node benchmarks/index.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -44,12 +47,14 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/autocannon": "^7.12.7",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.6.0",
     "@types/sequelize": "^4.28.20",
+    "autocannon": "^8.0.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   }

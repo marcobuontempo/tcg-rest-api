@@ -2,9 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../../utilities/error.util.js";
 import { hashSeed } from "../../utilities/seed.util.js";
 import { User } from "../../database/models/user.model.js";
+import { TypedRequest } from "../../types/express.js";
+import { UserSeedHeadersSchema } from "../../schemas/user.schema.js";
 
 export const requireValidUserSeed = async (
-  req: Request,
+  req: TypedRequest<typeof UserSeedHeadersSchema>,
   res: Response,
   next: NextFunction,
 ) => {

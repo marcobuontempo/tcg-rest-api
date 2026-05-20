@@ -129,15 +129,42 @@ _Note: only the first 10 matching results are returned_
 
 ### Admin Routes
 
+Note: all admin requests, except `/login`, require header `Authorization: Bearer <JWT>`
+
+#### Login
+
+`POST: /admin/login`
+
+`body: { "username": "admin", "password": "tcg_admin" }`
+
+_Note: returns a JWT that must be attached as `Authorization: Bearer <JWT>` to all subsequent admin requests. Default JWT lifetime is 10 minutes_
+
+#### Update Password
+
+`PATCH: /admin/password`
+
+`body: { "current_password": "tcg_admin", "new_password": "my_updated_password" }`
+
+#### Delete User
+
+`DELETE: /admin/users/:user_id`
+
 ## Rate Limiting
 
 - Global Requests: 60 per minute
 - Burst: 3 per second
+- Administrator Actions: 5 per minute
 - Registration: 1 per 10 seconds
-
+_Note: by default, the rate limiter is disabled in development environments_
 
 ## Administrator Account
+
 - On first server start (or when no admin exists), an automatic account is created:
-    - username: admin
-    - password: tcg_password
-- Login using `/api/admin/login` and change the password using `/api/admin/password`
+  - username: admin
+  - password: tcg_password
+- Login using `/api/admin/login` and change the password immediately using `/api/admin/password`
+
+## Benchmarking
+
+- `npm run dev` to start server in development mode
+- `npm run benchmark` to start benchmark tests
