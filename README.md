@@ -134,3 +134,10 @@ _Note: only the first 10 matching results are returned_
 - Global Requests: 60 per minute
 - Burst: 3 per second
 - Registration: 1 per 10 seconds
+
+
+## Administrator Account
+- On first server start (or when no admin exists), an automatic account is created:
+    - username: admin
+    - password: tcg_password
+- Login using `/api/admin/login` and change the password using `/api/admin/password`

@@ -1,7 +1,7 @@
-import config from "../config/index.js";
-import { Card } from "../database/models/card.model.js";
+import config from "../../config/index.js";
+import { Card } from "../../database/models/card.model.js";
 
-export const seedDefaultCards = async () => {
+export const seedCardsBoostrap = async () => {
   const count = await Card.count();
 
   if (count === 0) {

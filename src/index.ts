@@ -1,6 +1,5 @@
-import { cacheStart } from "./cache/index.js";
 import config from "./config/index.js";
-import { databaseStart } from "./database/index.js";
+import { serverBootstrap } from "./server/bootstrap/index.js";
 import { serverStart } from "./server/index.js";
 
 // Set Server Timezone (default=UTC)
@@ -9,8 +8,7 @@ process.env.TZ = config.server.timezone;
 (async () => {
   try {
     console.log("Starting server...");
-    await databaseStart();
-    await cacheStart();
+    await serverBootstrap();
     await serverStart();
   } catch (err) {
     console.error("Startup failed:", err);
