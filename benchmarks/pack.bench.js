@@ -6,7 +6,7 @@ autocannon(
   {
     url: `http://localhost:${PORT}`,
     connections: 100,
-    duration: 10,
+    duration: 100,
 
     requests: [
       {

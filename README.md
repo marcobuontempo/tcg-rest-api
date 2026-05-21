@@ -168,3 +168,23 @@ _Note: by default, the rate limiter is disabled in development environments_
 
 - `npm run dev` to start server in development mode
 - `npm run benchmark` to start benchmark tests
+- ~3000 req/sec
+
+## Types
+
+- Bug
+- Tree
+- Cloud
+- Shell
+
+- Uses circular type advantages: bug -> tree -> cloud -> shell -> bug -> ...
+
+
+## Rarities
+
+- Kilo
+- Mega
+- Giga
+- Tera
+- Peta
+- Exa
