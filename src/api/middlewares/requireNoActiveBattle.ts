@@ -7,13 +7,14 @@ export const requireNoActiveBattle = async (
   res: Response,
   next: NextFunction,
 ) => {
-  if (cache.battle.active.has(req.user.id)) {
+  // ensure user is not in battle by referencing the local cache
+  if (cache.battle.active.has(req.user.id))
     return next(
       ApiError.conflict(
         "user is currently in an active battle; try again shortly",
       ),
     );
-  }
 
+  // continue middleware pipe if not in battle
   return next();
 };

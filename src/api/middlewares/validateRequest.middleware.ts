@@ -12,8 +12,10 @@ type RequestSchema = ZodObject<{
 export const validateRequest =
   <T extends RequestSchema>(schema: T) =>
   (req: Request, res: Response, next: NextFunction) => {
+    // zod parse the schema
     const result = schema.safeParse(req);
 
+    // if parse fails, pass error to handler middleware
     if (!result.success) {
       return next(
         ApiError.badRequest(
@@ -22,21 +24,6 @@ export const validateRequest =
       );
     }
 
-    if (result.data?.body) {
-      Object.assign(req.body, result.data.body);
-    }
-
-    if (result.data?.query) {
-      Object.assign(req.query, result.data.query);
-    }
-
-    if (result.data?.params) {
-      Object.assign(req.params, result.data.params);
-    }
-
-    if (result.data?.headers) {
-      Object.assign(req.headers, result.data.headers);
-    }
-
+    // if success, continue with middleware pipe
     return next();
   };

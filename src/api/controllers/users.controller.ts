@@ -38,7 +38,7 @@ export const updateUsername = async (
   // get authenticated user data
   const user = req.user;
 
-  // refetch verified seed from the headers - ensure it is not being set as the usrename
+  // refetch verified seed from the headers - ensure it is not being set as the username
   const seed = req.get("x-user-seed");
   if (!seed || req.body.username.toUpperCase().includes(seed.toUpperCase()))
     throw ApiError.badRequest("'username' cannot contain user seed");

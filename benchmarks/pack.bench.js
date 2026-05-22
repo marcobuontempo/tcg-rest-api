@@ -5,8 +5,8 @@ const PORT = 4000;
 autocannon(
   {
     url: `http://localhost:${PORT}`,
-    connections: 100,
-    duration: 100,
+    connections: 10,
+    duration: 10,
 
     requests: [
       {
@@ -29,7 +29,7 @@ autocannon(
             "x-user-seed": context.seed, // pass the user seed
           },
           body: JSON.stringify({
-            username: `${context.seed.slice(0, 6)}...`, // provide a substring of the seed as new username, just for a dynamic value
+            username: `test:${context.seed.slice(0, 4)}...`, // provide a substring of the seed as new username, just for a dynamic value
           }),
         }),
       },

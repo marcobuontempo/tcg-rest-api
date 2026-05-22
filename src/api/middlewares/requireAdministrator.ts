@@ -9,28 +9,29 @@ export const requireAdministrator = (
   res: Response,
   next: NextFunction,
 ) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader?.startsWith("Bearer ")) {
-    return next(ApiError.unauthorised("missing Bearer token"));
-  }
-
-  const token = authHeader.split(" ")[1];
-
   try {
+    // get authorization 'Bearer' header
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith("Bearer "))
+      throw ApiError.unauthorised("missing Bearer token");
+
+    // extract jwt from header
+    const token = authHeader.split(" ")[1];
+
+    // verify jwt
     const payload = jwt.verify(
       token,
       config.auth.jwtSecret,
     ) as AdministratorJwtPayload;
+    if (!payload.authenticated) throw ApiError.unauthorised();
 
-    if (!payload.authenticated) {
-      throw ApiError.unauthorised();
-    }
-
+    // attach jwt data to request object
     req.administrator = payload;
 
-    next();
+    // continue middleware pipe
+    return next();
   } catch {
+    // pass error to handler middleware
     return next(ApiError.unauthorised("invalid or expired token"));
   }
 };

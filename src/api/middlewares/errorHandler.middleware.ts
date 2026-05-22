@@ -8,7 +8,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  // Handle custom API errors
+  // handle custom API errors
   if (err instanceof ApiError) {
     if (err.error) {
       console.error("Internal error:", err.error);
@@ -18,7 +18,7 @@ export const errorHandler = (
     });
   }
 
-  // Handle JSON parse errors from express.json()
+  // handle JSON parse errors from express.json()
   if (
     err instanceof SyntaxError &&
     "body" in err &&
@@ -34,7 +34,7 @@ export const errorHandler = (
     console.error("Unhandled error:", err);
   }
 
-  // Fallback for unwanted errors
+  // fallback for unwanted errors
   return res.status(500).json({
     message: "Internal Server Error",
   });

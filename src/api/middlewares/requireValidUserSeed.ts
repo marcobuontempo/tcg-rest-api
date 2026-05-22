@@ -10,18 +10,20 @@ export const requireValidUserSeed = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // get user seed from headers
   const seed = req.get("x-user-seed")!;
 
+  // normalise and hash seed for database lookup
   const normalisedSeed = seed.trim().toUpperCase();
   const hashedSeed = hashSeed(normalisedSeed);
 
+  // find user
   const user = await User.findOne({ where: { seed_hash: hashedSeed } });
+  if (!user) return next(ApiError.forbidden("user seed does not exist"));
 
-  if (!user) {
-    return next(ApiError.forbidden("user seed does not exist"));
-  }
-
+  // attach valid user to request object
   req.user = user;
 
+  // continue middleware pipe
   return next();
 };

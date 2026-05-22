@@ -17,7 +17,7 @@ export const registerUser = async (
   const seedHash = hashSeed(seed);
 
   // naively create user (risk of seed collision is essentially mathematically impossible)
-  await User.create({ seed_hash: seedHash, balance: 10000000 });
+  await User.create({ seed_hash: seedHash });
 
   // update the local cache user count
   cache.stats.total_users += 1;
