@@ -147,10 +147,10 @@ const populatePacksCache = async (dbCards: Card[]) => {
               2.3,
             ),
       );
-      cache.packs.data.set(name as PackName, {
+      cache.packs.data.set(name.toLowerCase() as PackName, {
         cards: filteredCards,
         cumulativeDropRate: cumulativeDropRate,
-        cost: Math.round(scaledPrice / 500) * 500,
+        cost: Math.round(scaledPrice / 500) * 500, // calculation to scale the cost according to popularity
       });
     }
     packsProcessed += 1;

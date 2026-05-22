@@ -7,6 +7,7 @@ export const getLeaderboard = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // return data (stored in cache)
   return res.status(200).json({
     leaderboard: cache.leaderboard.users,
     last_fetched: cache.leaderboard.updated,
@@ -19,5 +20,6 @@ export const getStats = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // return data (stored in cache)
   return res.status(200).json(cache.stats);
 };

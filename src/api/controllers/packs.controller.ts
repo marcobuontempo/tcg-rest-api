@@ -17,6 +17,7 @@ export const getAllPacksData = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // return data from local cache
   return res.status(200).json(cache.packs.information);
 };
 
@@ -26,57 +27,73 @@ export const openDailyPack = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const last = req.user.last_daily_pack_at;
-  const now = new Date();
+  // start transaction
+  const transaction = await database.transaction();
 
-  const isSameDay =
-    last &&
-    last.getUTCFullYear() === now.getUTCFullYear() &&
-    last.getUTCMonth() === now.getUTCMonth() &&
-    last.getUTCDate() === now.getUTCDate();
+  try {
+    // get current date (and also yyyy-mm-dd string for database comparison)
+    const now = new Date();
+    const dateString = now.toISOString().split("T")[0];
 
-  if (isSameDay) {
-    throw ApiError.forbidden("daily pack already claimed today");
-  }
-
-  await req.user.update({
-    last_daily_pack_at: now,
-  });
-
-  const [freePackName] = Object.keys(config.packs.types) as Array<
-    keyof typeof config.packs.types
-  >;
-  const pack = cache.packs.data.get(freePackName);
-
-  if (!pack) {
-    throw ApiError.badRequest("'basic' pack could not be processed");
-  }
-
-  // build card insertion query
-  let insertQuery: string[] = [];
-
-  const pulledCards = [
-    ...selectRandomCards(pack.cards, pack.cumulativeDropRate, 5),
-    ...selectRandomCards(pack.cards, pack.cumulativeDropRate, 5),
-  ].map((card) => {
-    insertQuery.push(
-      `('${req.user.id}', ${card.id}, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+    // update and prevent double-claim during same day
+    const [updated] = await User.update(
+      { last_daily_pack_at: now },
+      {
+        where: {
+          id: req.user.id,
+          [Op.or]: [
+            { last_daily_pack_at: null },
+            { last_daily_pack_at: { [Op.lt]: dateString } },
+          ],
+        },
+        transaction,
+      },
     );
-    return formatCardForResponse(card);
-  });
+    if (updated === 0)
+      throw ApiError.forbidden("daily pack already claimed today");
 
-  // insert cards into UserCards
-  await UserCard.sequelize?.query(
-    `
-    INSERT INTO user_cards (user_id, card_id, quantity, updated_at, created_at)
-    VALUES ${insertQuery.join(",")}
-    ON CONFLICT(user_id, card_id)
-    DO UPDATE SET quantity = quantity + 1,
-                  updated_at = CURRENT_TIMESTAMP;
-  `,
-  );
+    // get the lowest tier pack available
+    const freePackName = cache.packs.information[0].name;
+    const pack = cache.packs.data.get(freePackName);
+    if (!pack) throw ApiError.badRequest("daily pack could not be processed");
 
-  return res.status(200).json(pulledCards);
+    // build card insertion query (so that only a single database query is required - more performant)
+    const insertQuery: string[] = [];
+
+    // generate cards from pack pool x2 -> add to SQL query -> and store as a formatted array for the response
+    const pulledCards = selectRandomCards(
+      pack.cards,
+      pack.cumulativeDropRate,
+      2 * config.packs.cardCount,
+    ).map((card) => {
+      insertQuery.push(
+        `('${req.user.id}', ${card.id}, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      );
+      return formatCardForResponse(card);
+    });
+
+    // execute the built query (i.e. insert cards into UserCards)
+    await UserCard.sequelize?.query(
+      `
+      INSERT INTO user_cards (user_id, card_id, quantity, updated_at, created_at)
+      VALUES ${insertQuery.join(",")}
+      ON CONFLICT(user_id, card_id)
+      DO UPDATE SET quantity = quantity + 1,
+                    updated_at = CURRENT_TIMESTAMP;
+      `,
+      { transaction },
+    );
+
+    // commit transaction
+    await transaction.commit();
+
+    // return the list of cards
+    return res.status(200).json(pulledCards);
+  } catch (err) {
+    // rollback transaction if error, and pass error to handler middleware
+    await transaction.rollback();
+    return next(err);
+  }
 };
 
 // POST: /api/packs/:pack_name/open
@@ -85,18 +102,18 @@ export const openPack = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const { pack_name } = req.params;
-  const pack = cache.packs.data.get(pack_name);
-
-  if (!pack) {
-    throw ApiError.badRequest("'pack_name' could not be processed");
-  }
-
+  // start transaction
   const transaction = await database.transaction();
 
   try {
+    // get pack data
+    const packName = req.params.pack_name;
+    const pack = cache.packs.data.get(packName);
+    if (!pack || pack.cards.length === 0)
+      throw ApiError.badRequest(`'${packName}' could not be processed`);
+
     // attempt to process payment
-    const [updatedRows] = await User.update(
+    const [updated] = await User.update(
       {
         balance: database.literal(`balance - ${pack.cost}`),
       },
@@ -110,19 +127,16 @@ export const openPack = async (
         transaction,
       },
     );
+    if (updated === 0) throw ApiError.forbidden("insufficient funds");
 
-    if (updatedRows === 0) {
-      throw ApiError.forbidden("insufficient funds");
-    }
+    // build card insertion query (so that only a single database query is required - more performant)
+    const insertQuery: string[] = [];
 
-    // build card insertion query
-    let insertQuery: string[] = [];
-
-    // generate cards from pack pool
+    // generate cards from pack pool -> add to SQL query -> and store as a formatted array for the response
     const pulledCards = selectRandomCards(
       pack.cards,
       pack.cumulativeDropRate,
-      5,
+      config.packs.cardCount,
     ).map((card) => {
       insertQuery.push(
         `('${req.user.id}', ${card.id}, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
@@ -130,22 +144,25 @@ export const openPack = async (
       return formatCardForResponse(card);
     });
 
-    // insert cards into UserCards
+    // execute the built query (i.e. insert cards into UserCards)
     await UserCard.sequelize?.query(
       `
-    INSERT INTO user_cards (user_id, card_id, quantity, updated_at, created_at)
-    VALUES ${insertQuery.join(",")}
-    ON CONFLICT(user_id, card_id)
-    DO UPDATE SET quantity = quantity + 1,
-                  updated_at = CURRENT_TIMESTAMP;
-  `,
+      INSERT INTO user_cards (user_id, card_id, quantity, updated_at, created_at)
+      VALUES ${insertQuery.join(",")}
+      ON CONFLICT(user_id, card_id)
+      DO UPDATE SET quantity = quantity + 1,
+                    updated_at = CURRENT_TIMESTAMP;
+      `,
       { transaction },
     );
 
+    // commit transaction
     await transaction.commit();
 
+    // return the list of cards
     return res.status(200).json(pulledCards);
   } catch (err) {
+    // rollback transaction if error, and pass error to handler middleware
     await transaction.rollback();
     return next(err);
   }

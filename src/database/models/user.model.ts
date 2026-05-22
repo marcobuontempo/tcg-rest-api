@@ -62,7 +62,7 @@ User.init(
     },
 
     last_daily_pack_at: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true,
       defaultValue: null,
     },

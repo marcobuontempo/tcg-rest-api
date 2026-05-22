@@ -12,7 +12,8 @@ export const requireValidUserSeed = async (
 ) => {
   const seed = req.get("x-user-seed")!;
 
-  const hashedSeed = hashSeed(seed.toUpperCase());
+  const normalisedSeed = seed.trim().toUpperCase();
+  const hashedSeed = hashSeed(normalisedSeed);
 
   const user = await User.findOne({ where: { seed_hash: hashedSeed } });
 

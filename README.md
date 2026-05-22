@@ -35,6 +35,8 @@ Note: All routes must be prefixed with `/api`
 
 `POST: /register`: returns a new account's user seed
 
+_Note: ensure you save the seed as this is your account's key, and cannot be retrieved later_
+
 ### Registered Routes
 
 Note: must include seed in request headers `x-user-seed`
@@ -48,6 +50,8 @@ Note: must include seed in request headers `x-user-seed`
 `PATCH: /users/me`
 
 `body: { "username": "new_username" }`
+
+_Note: to protect the user's private seed, it is not possible to set it as the username_
 
 #### Delete User
 
@@ -155,7 +159,7 @@ _Note: returns a JWT that must be attached as `Authorization: Bearer <JWT>` to a
 - Burst: 3 per second
 - Registration: 1 per minute
 - Administrator Actions: 5 per minute
-_Note: by default, the rate limiter is disabled in development environments_
+  _Note: by default, the rate limiter is disabled in development environments_
 
 ## Administrator Account
 
@@ -168,11 +172,11 @@ _Note: by default, the rate limiter is disabled in development environments_
 
 - start server in development mode: `npm run dev`
 - start benchmark test: `npm run benchmark:pack`
-    - Register->Update Username->Open Daily Pack
-    - 3000-3500 reqs/sec
+  - Register->Update Username->Open Daily Pack
+  - 3000-3500 reqs/sec
 - start benchmark test: `npm run benchmark:battle`
-    - Battle
-    - 700-1000 reqs/sec
+  - Battle
+  - 700-1000 reqs/sec
 
 ## Types
 
@@ -183,7 +187,6 @@ _Note: by default, the rate limiter is disabled in development environments_
 
 - Uses circular type advantages: bug -> tree -> cloud -> shell -> bug -> ...
 
-
 ## Rarities
 
 - Kilo
@@ -192,3 +195,13 @@ _Note: by default, the rate limiter is disabled in development environments_
 - Tera
 - Peta
 - Exa
+
+## Packs
+
+- basic: kilo [10]
+- boosted: kilo, mega [50]
+- turbo: kilo, mega, giga [210]
+- quantum: kilo, giga, tera [520]
+- singularity: kilo, giga, tera, exa [1000]
+
+_Note: prices scale based on config min/max prices set_

@@ -12,7 +12,10 @@ export const BattleSchema = z.object(
               .transform((value) => value.toLowerCase()),
             "'cards' must be an array of strings",
           )
-          .length(5, "'cards' must be of length 5"),
+          .length(
+            config.battle.cardCount,
+            `'cards' must be of length ${config.battle.cardCount}`,
+          ),
         difficulty: z.coerce
           .number("'difficulty' must not be missing")
           .int("'difficulty' must be an integer")

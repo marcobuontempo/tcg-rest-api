@@ -19,25 +19,21 @@ export const loginAdministrator = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // find matching admin account
   const admin = await Administrator.findOne({
     where: { username: req.body.username },
   });
+  if (!admin) throw ApiError.forbidden("username/password is incorrect");
 
-  // if admin does't exist
-  if (!admin) {
-    throw ApiError.forbidden("username/password is incorrect");
-  }
-
+  // ensure login credentials match
   const passwordsMatch = await comparePasswords(
     req.body.password,
     admin.password_hash,
   );
-
-  // ensure password is valid
-  if (!passwordsMatch) {
+  if (!passwordsMatch)
     throw ApiError.forbidden("username/password is incorrect");
-  }
 
+  // generate JWT
   const token = jwt.sign(
     {
       username: admin.username,
@@ -50,6 +46,7 @@ export const loginAdministrator = async (
     },
   );
 
+  // return token
   return res.status(200).json({ token });
 };
 
@@ -59,31 +56,31 @@ export const updateAdminPassword = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // find matching admin account
   const admin = await Administrator.findOne({
     where: { username: req.administrator.username },
   });
 
   // if admin does't exist (uncommon - but may have been deleted between auth operations while jwt still valid)
-  if (!admin) {
-    throw ApiError.forbidden("admin account does not exist");
-  }
+  if (!admin) throw ApiError.forbidden("admin account does not exist");
 
+  // ensure current password matches
   const passwordsMatch = await comparePasswords(
     req.body.current_password,
     admin.password_hash,
   );
-
-  // ensure password is valid
-  if (!passwordsMatch) {
+  if (!passwordsMatch)
     throw ApiError.forbidden("current password is incorrect");
-  }
 
+  // hash new password for database storage
   const newPasswordHash = await hashPassword(req.body.new_password);
 
+  // update admin credentials in database
   await admin.update({
     password_hash: newPasswordHash,
   });
 
+  // return success message
   return res.status(200).json({ message: "password updated" });
 };
 
@@ -93,13 +90,16 @@ export const deleteUserAsAdmin = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // find user to destroy
   await User.destroy({
     where: {
       id: req.params.user_id,
     },
   });
 
+  // reduce the local cache user count
   cache.stats.total_users -= 1;
 
+  // return success code
   res.status(204).send();
 };

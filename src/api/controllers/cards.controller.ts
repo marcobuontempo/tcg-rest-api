@@ -21,11 +21,13 @@ export const getAllCardsData = async (
     sort_by, // defined by schema
   } = req.query;
 
-  // build query statement
+  // build query statement based on passed filters
   const searchQuery: any = {};
 
   if (name) searchQuery.name = name;
+
   if (type) searchQuery.type = type;
+
   if (rarity) searchQuery.rarity = rarity;
 
   if (min_attack || max_attack) {
@@ -40,11 +42,10 @@ export const getAllCardsData = async (
     if (max_defense) searchQuery.defense[Op.lte] = Number(max_defense);
   }
 
+  // find cards matching query
   const cards = await Card.findAll({
     where: searchQuery,
-    attributes: {
-      exclude: ["id", "created_at", "updated_at"],
-    },
+    attributes: ["name", "type", "rarity", "attack", "defense"],
     order: sort_by && [[sort_by, "ASC"]],
   });
 

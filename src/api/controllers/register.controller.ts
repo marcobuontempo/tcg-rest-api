@@ -10,16 +10,22 @@ export const registerUser = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // generate a new user seed
   const seed = generateSeed(config.game.userSeedLength);
 
+  // hash seed for database storage
   const seedHash = hashSeed(seed);
 
-  await User.create({ seed_hash: seedHash });
+  // naively create user (risk of seed collision is essentially mathematically impossible)
+  await User.create({ seed_hash: seedHash, balance: 10000000 });
 
+  // update the local cache user count
   cache.stats.total_users += 1;
 
+  // return data
   return res.status(201).json({
     seed: seed,
-    message: "User registered",
+    message:
+      "User registered - please store the seed safely as it cannot be retrieved later!",
   });
 };

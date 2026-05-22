@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ApiError } from "../../utilities/error.util.js";
+import config from "../../config/index.js";
 
 export const errorHandler = (
   err: unknown,
@@ -28,8 +29,12 @@ export const errorHandler = (
     });
   }
 
+  // log unhandled errors when in deveelopment mode - for debugging
+  if (config.server.env === "development") {
+    console.error("Unhandled error:", err);
+  }
+
   // Fallback for unwanted errors
-  // console.error("Unhandled error:", err);
   return res.status(500).json({
     message: "Internal Server Error",
   });

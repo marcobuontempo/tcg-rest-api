@@ -22,6 +22,7 @@ export const createMarketListing = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // get new market listing data
   const { name: cardName, quantity, price_per_card } = req.body;
 
   // start transaction

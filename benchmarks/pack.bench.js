@@ -29,7 +29,7 @@ autocannon(
             "x-user-seed": context.seed, // pass the user seed
           },
           body: JSON.stringify({
-            username: context.seed, // provide the seed as new username, just for a dynamic value
+            username: `${context.seed.slice(0, 6)}...`, // provide a substring of the seed as new username, just for a dynamic value
           }),
         }),
       },

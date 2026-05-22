@@ -1,4 +1,5 @@
 export const packs = {
+  // place types in order of cheapest to most expensive
   types: {
     basic: ["kilo"],
     boosted: ["kilo", "mega"],
@@ -9,4 +10,6 @@ export const packs = {
 
   minPrice: 1000,
   maxPrice: 100000,
+
+  cardCount: 5,
 };

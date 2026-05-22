@@ -1,4 +1,6 @@
 export const battle = {
+  cardCount: 5,
+
   difficultyPoolCount: 10,
   difficultyPoolSize: 10,
 
