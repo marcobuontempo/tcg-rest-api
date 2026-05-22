@@ -35,7 +35,7 @@ export const configurePRAGMA = async () => {
     throw new Error("Failed to limit journal_size_limit=67108864");
   }
 
-  // Checkpoint WAL After 2000 Pages: control WAL growth
+  // Checkpoint WAL every 2000 pages: control WAL growth
   await database.query("PRAGMA cache_size=2000;");
   const cacheSizeResult = await database
     .query<{
@@ -46,9 +46,33 @@ export const configurePRAGMA = async () => {
     throw new Error("Failed to set PRAGMA cache_size=2000");
   }
 
+  // Allow additional time (5s) until timeout is called, to reduce database lock errors
+  await database.query("PRAGMA busy_timeout=10000;");
+  const timeoutResult = await database
+    .query<{
+      timeout: number;
+    }>("PRAGMA busy_timeout;", { type: QueryTypes.SELECT })
+    .then((r) => r[0].timeout);
+  if (timeoutResult !== 10000) {
+    throw new Error("Failed to set PRAGMA busy_timeout=10000");
+  }
+
+  // Enable memory-mapped IO (small gain in performance - larger size allocation has diminishing gains)
+  await database.query("PRAGMA mmap_size=134217728;");
+  const memoryMappedResult = await database
+    .query<{
+      mmap_size: number;
+    }>("PRAGMA mmap_size;", { type: QueryTypes.SELECT })
+    .then((r) => r[0].mmap_size);
+  if (memoryMappedResult !== 134217728) {
+    throw new Error("Failed to set PRAGMA mmap_size=134217728");
+  }
+
   console.log(`PRAGMA Configured
   | Journal Mode:          ${walResult}
   | Synchronous:           ${syncResult}
   | Journal Size Limit:    ${journalSizeResult / 1024 / 1024} MiB
-  | Cache Size:            ${cacheSizeResult}`);
+  | Cache Size:            ${cacheSizeResult} * pagesize
+  | Busy Timeout:          ${timeoutResult} ms
+  | Memory Mapped Size:    ${memoryMappedResult / 1024 / 1024} MiB`);
 };
