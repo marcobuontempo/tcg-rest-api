@@ -1,5 +1,4 @@
 import { Card } from "./models/card.model.js";
-import { CardMarketStats } from "./models/cardMarketStats.js";
 import { MarketListing } from "./models/marketListing.model.js";
 import { User } from "./models/user.model.js";
 import { UserCard } from "./models/userCard.model.js";
@@ -48,14 +47,6 @@ export const initialiseAssociations = () => {
     onDelete: "CASCADE",
   });
   Card.hasMany(MarketListing, { foreignKey: "card_id", sourceKey: "id" });
-
-  // Card has CardMarketStats (1:N)
-  CardMarketStats.belongsTo(Card, {
-    foreignKey: "card_id",
-    targetKey: "id",
-    onDelete: "CASCADE",
-  });
-  Card.hasMany(CardMarketStats, { foreignKey: "card_id", sourceKey: "id" });
 
   console.log("Model associations established");
 };

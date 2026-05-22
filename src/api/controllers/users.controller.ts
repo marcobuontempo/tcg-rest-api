@@ -35,6 +35,11 @@ export const updateUsername = async (
 ) => {
   const user = req.user;
 
+  const seed = req.get("x-user-seed");
+  if (!seed || req.body.username.includes(seed)) {
+    throw ApiError.badRequest("'username' cannot contain user seed");
+  }
+
   const updatedData = req.body;
 
   await user.update(updatedData);
