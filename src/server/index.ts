@@ -31,7 +31,7 @@ export const serverStart = async () => {
 
   // Start Server
   app.listen(config.server.port, async () => {
-    console.log(`Server running on port ${config.server.port}...`);
+    console.log(`=> Server running on port ${config.server.port} <=`);
   });
 
   return app;

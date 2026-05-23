@@ -1,9 +1,11 @@
 import autocannon from "autocannon";
 
 const PORT = 4000;
+const CONNECTIONS = 50;
+const DURATION = 10;
 
-const generateSeeds = async () => {
-  const requests = Array.from({ length: 10000 }, async () => {
+const generateUsers = async () => {
+  const requests = Array.from({ length: CONNECTIONS }, async () => {
     const registerResult = await fetch(
       `http://localhost:${PORT}/api/register`,
       {
@@ -17,9 +19,7 @@ const generateSeeds = async () => {
       `http://localhost:${PORT}/api/packs/daily/open`,
       {
         method: "POST",
-        headers: {
-          ["x-user-seed"]: user.seed,
-        },
+        headers: { "x-user-seed": user.seed },
       },
     );
 
@@ -27,50 +27,57 @@ const generateSeeds = async () => {
 
     return {
       seed: user.seed,
-      card: cards[0].name,
+      cards: cards,
     };
   });
 
   return Promise.all(requests);
 };
 
-let clientNo = -1;
-const getNextUser = (seeds) => {
-  clientNo++;
-  return seeds[clientNo % seeds.length];
-};
-const getCurrentUser = (seeds) => {
-  return seeds[clientNo % seeds.length];
-};
-
 (async () => {
-  const seeds = await generateSeeds();
+  const users = await generateUsers();
+  for (let i = 0; i < 100; i++) {
+    users.push(...(await generateUsers()));
+  }
+  console.log("DONE")
+  const cardIndexes = new Array(users.length).fill(0);
+
+  let connectionIndex = 0;
 
   autocannon(
     {
       title: "market",
       url: `http://localhost:${PORT}`,
-      connections: 500,
-      duration: 5,
+      connections: CONNECTIONS,
+      duration: DURATION,
 
       requests: [
         {
           method: "POST",
           path: "/api/market",
-          setupRequest: (req, context) => ({
-            ...req,
-            headers: {
-              ...req.headers,
-              "Content-Type": "application/json", // must set for json to be parsed by backend
-              "x-user-seed": getNextUser(seeds).seed, // pass the user seed
-            },
-            body: JSON.stringify({
-              // create market listing
-              name: getCurrentUser(seeds).card,
-              quantity: 1,
-              price_per_card: 100,
-            }),
-          }),
+          setupRequest: (req, context) => {
+            const userIndex = connectionIndex++ % users.length;
+            if (!context.user) {
+              context.user = users[userIndex];
+            }
+            const cardIndex =
+              cardIndexes[userIndex] % context.user.cards.length;
+            context.card = context.user.cards[cardIndex];
+            cardIndexes[userIndex]++;
+            return {
+              ...req,
+              headers: {
+                ...req.headers,
+                "Content-Type": "application/json",
+                "x-user-seed": context.user.seed,
+              },
+              body: JSON.stringify({
+                name: context.card.name,
+                quantity: 1,
+                price_per_card: 100,
+              }),
+            };
+          },
         },
       ],
     },

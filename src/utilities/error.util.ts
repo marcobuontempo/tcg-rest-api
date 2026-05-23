@@ -50,4 +50,11 @@ export class ApiError {
   static internal(message: string, error: Error | unknown) {
     return new ApiError(500, `Internal Server Error - ${message}`, error);
   }
+
+  static unavailable(message?: string) {
+    const displayMessage = message
+      ? `Service Unavailable - ${message}`
+      : "Service Unavailable";
+    return new ApiError(503, displayMessage);
+  }
 }

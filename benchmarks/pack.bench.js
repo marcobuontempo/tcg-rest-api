@@ -1,13 +1,15 @@
 import autocannon from "autocannon";
 
 const PORT = 4000;
+const CONNECTIONS = 50;
+const DURATION = 30;
 
 autocannon(
   {
     title: "register -> change username -> open pack",
     url: `http://localhost:${PORT}`,
-    connections: 500,
-    duration: 5,
+    connections: CONNECTIONS,
+    duration: DURATION,
 
     requests: [
       {

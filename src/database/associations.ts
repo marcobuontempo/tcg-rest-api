@@ -48,5 +48,5 @@ export const initialiseAssociations = () => {
   });
   Card.hasMany(MarketListing, { foreignKey: "card_id", sourceKey: "id" });
 
-  console.log("Model associations established");
+  console.log("Model associations established...");
 };

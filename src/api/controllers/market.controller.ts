@@ -54,15 +54,11 @@ export const createMarketListing = async (
       );
     }
 
-    // reduce quantity of card owned (or delete if quantity=0)
-    if (userCard.quantity === quantity) {
-      await userCard.destroy({ transaction });
-    } else {
-      await userCard.decrement("quantity", {
-        by: quantity,
-        transaction,
-      });
-    }
+    // reduce quantity of card owned
+    await userCard.decrement("quantity", {
+      by: quantity,
+      transaction,
+    });
 
     // create card listing
     const marketListing = await MarketListing.create(
@@ -83,7 +79,7 @@ export const createMarketListing = async (
     });
   } catch (err) {
     await transaction.rollback();
-    throw err;
+    return next(err);
   }
 };
 

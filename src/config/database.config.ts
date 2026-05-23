@@ -1,12 +1,22 @@
 import { Options } from "sequelize";
 
-export const database: Options = {
-  dialect: "sqlite",
-  storage: process.env.DB_LOCATION ?? "./data/database.sqlite",
-  logging: false,
-  pool: {
-    max: Number(process.env.DB_POOL_SIZE ?? 5),
-    min: 1,
-    idle: 10000,
+export const database = {
+  options: {
+    dialect: "sqlite",
+    storage: process.env.DB_LOCATION ?? "./data/database.sqlite",
+    logging: false,
+    pool: {
+      max: Number(process.env.DB_POOL_SIZE ?? 5),
+      min: 1,
+      idle: 10000,
+    },
+  } as Options,
+  pragmas: {
+    journalMode: "WAL", // [mode] Enable WAL Mode: allows concurrent reads during writes, drastically improving performance
+    synchronous: "NORMAL", // [mode] Set NORMAL Sync: transactions are written to disk less frequently, improving performance
+    journalSizeLimit: 67108864, // [bytes] Limit WAL File Size (64MiB): prevents WAL file from growing indefinitely, with checkpoints when exceeded
+    cacheSize: 2000, // [pages] Checkpoint WAL every X pages: helps to control WAL growth
+    busyTimeout: 10000, // [ms] Allow additional time until timeout is called, to reduce database lock errors
+    memoryMapSize: 134217728, // Enable memory-mapped IO (small gain in performance - larger size allocation has diminishing gains)
   },
 };

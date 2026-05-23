@@ -171,12 +171,7 @@ _Note: returns a JWT that must be attached as `Authorization: Bearer <JWT>` to a
 ## Benchmarking
 
 - start server in development mode: `npm run dev`
-- start benchmark test: `npm run benchmark:pack`
-  - Register->Update Username->Open Daily Pack
-  - 3000-3500 reqs/sec
-- start benchmark test: `npm run benchmark:battle`
-  - Battle
-  - 700-1000 reqs/sec
+- start benchmark test: `npm run benchmark:pack`, `npm run benchmark:market`, or `npm run benchmark:battle`
 
 ## Types
 

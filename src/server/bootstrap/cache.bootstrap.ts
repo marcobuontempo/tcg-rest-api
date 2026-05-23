@@ -22,7 +22,7 @@ export const cacheBootstrap = async () => {
     await populateLeaderboardCache();
   });
 
-  console.log("Populated cache");
+  console.log("Populated cache...");
 };
 
 const populateCardCache = async (dbCards: Card[]) => {
