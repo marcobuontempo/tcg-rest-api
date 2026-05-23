@@ -1,4 +1,3 @@
-import config from "../config/index.js";
 import { Card } from "../database/models/card.model.js";
 import { User } from "../database/models/user.model.js";
 

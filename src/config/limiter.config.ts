@@ -37,14 +37,14 @@ export const limiter: Record<
   Partial<Options>
 > = {
   global: {
-    // 20 requests per minute
+    // 10 requests per minute
     ...baseLimiter,
     windowMs: 60 * 1000,
-    limit: 20,
+    limit: 10,
   },
 
   burst: {
-    // 3 requests per second
+    // 1 request per second
     ...baseLimiter,
     windowMs: 1000,
     limit: 3,

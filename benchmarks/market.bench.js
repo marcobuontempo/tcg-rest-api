@@ -24,9 +24,10 @@ const generateSeeds = async () => {
     );
 
     const cards = await packResult.json();
+
     return {
       seed: user.seed,
-      cards: cards.slice(0, 5).map((c) => c.name),
+      card: cards[0].name,
     };
   });
 
@@ -47,15 +48,15 @@ const getCurrentUser = (seeds) => {
 
   autocannon(
     {
-      title: "battle",
+      title: "market",
       url: `http://localhost:${PORT}`,
-      connections: 10,
+      connections: 500,
       duration: 5,
 
       requests: [
         {
           method: "POST",
-          path: "/api/battle",
+          path: "/api/market",
           setupRequest: (req, context) => ({
             ...req,
             headers: {
@@ -64,8 +65,10 @@ const getCurrentUser = (seeds) => {
               "x-user-seed": getNextUser(seeds).seed, // pass the user seed
             },
             body: JSON.stringify({
-              difficulty: 1,
-              cards: getCurrentUser(seeds).cards, // provide the cards to play with
+              // create market listing
+              name: getCurrentUser(seeds).card,
+              quantity: 1,
+              price_per_card: 100,
             }),
           }),
         },

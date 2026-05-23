@@ -155,8 +155,8 @@ _Note: returns a JWT that must be attached as `Authorization: Bearer <JWT>` to a
 
 ## Rate Limiting
 
-- Global Requests: 20 per minute
-- Burst: 3 per second
+- Global Requests: 10 per minute
+- Burst: 1 per second
 - Registration: 1 per minute
 - Administrator Actions: 5 per minute
   _Note: by default, the rate limiter is disabled in development environments_

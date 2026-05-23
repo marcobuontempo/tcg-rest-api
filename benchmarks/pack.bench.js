@@ -4,9 +4,10 @@ const PORT = 4000;
 
 autocannon(
   {
+    title: "register -> change username -> open pack",
     url: `http://localhost:${PORT}`,
-    connections: 10,
-    duration: 10,
+    connections: 500,
+    duration: 5,
 
     requests: [
       {
