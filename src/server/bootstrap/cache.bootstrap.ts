@@ -5,6 +5,7 @@ import config from "../../config/index.js";
 import { User } from "../../database/models/user.model.js";
 import { UserStats } from "../../database/models/userStats.model.js";
 import { PackName } from "../../cache/packs.cache.js";
+import { formatBalanceForResponse } from "../../utilities/balance.util.js";
 
 export const cacheBootstrap = async () => {
   // get all cards from database
@@ -160,7 +161,7 @@ const populatePacksCache = async (dbCards: Card[]) => {
     cache.packs.information.push({
       name: name,
       contents: config.packs.types[name],
-      cost: Math.round(data.cost / 100),
+      cost: formatBalanceForResponse(data.cost),
     });
   }
 };

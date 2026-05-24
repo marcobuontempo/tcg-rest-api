@@ -14,6 +14,7 @@ import config from "../../config/index.js";
 import { UserStats } from "../../database/models/userStats.model.js";
 import { User } from "../../database/models/user.model.js";
 import { formatCardForResponse } from "../../utilities/cards.util.js";
+import { formatBalanceForResponse } from "../../utilities/balance.util.js";
 
 // POST: /api/battle/:difficulty
 export const playBattle = async (
@@ -157,9 +158,11 @@ export const playBattle = async (
     return res.status(200).json({
       result: winner === "player" ? "win" : "lose",
       burned_card: cardToBurn ? formatCardForResponse(cardToBurn) : cardToBurn,
-      win_amount: increments.user.balance / 100,
+      win_amount: formatBalanceForResponse(increments.user.balance),
       xp_gain: increments.user.xp,
-      current_balance: (req.user.balance + increments.user.balance) / 100,
+      current_balance: formatBalanceForResponse(
+        req.user.balance + increments.user.balance,
+      ),
       current_xp: req.user.xp + increments.user.xp,
       battle_log: battleLog,
     });

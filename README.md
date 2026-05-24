@@ -172,6 +172,11 @@ _Note: returns a JWT that must be attached as `Authorization: Bearer <JWT>` to a
 
 - start server in development mode: `npm run dev`
 - start benchmark test: `npm run benchmark:pack`, `npm run benchmark:market`, or `npm run benchmark:battle`
+- Results (full saturation):
+  - ~1000-4000 requests per second
+  - ~10% fail rate (sqlite_busy errors)
+
+_Note: real-world results should have close to 0% fail rate, especially with server-side rate limiting_
 
 ## Types
 

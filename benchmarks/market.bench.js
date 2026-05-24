@@ -2,7 +2,7 @@ import autocannon from "autocannon";
 
 const PORT = 4000;
 const CONNECTIONS = 50;
-const DURATION = 10;
+const DURATION = 30;
 
 const generateUsers = async () => {
   const requests = Array.from({ length: CONNECTIONS }, async () => {
@@ -39,7 +39,6 @@ const generateUsers = async () => {
   for (let i = 0; i < 100; i++) {
     users.push(...(await generateUsers()));
   }
-  console.log("DONE")
   const cardIndexes = new Array(users.length).fill(0);
 
   let connectionIndex = 0;

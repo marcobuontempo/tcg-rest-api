@@ -16,7 +16,7 @@ export const database = {
     synchronous: "NORMAL", // [mode] Set NORMAL Sync: transactions are written to disk less frequently, improving performance
     journalSizeLimit: 67108864, // [bytes] Limit WAL File Size (64MiB): prevents WAL file from growing indefinitely, with checkpoints when exceeded
     cacheSize: 2000, // [pages] Checkpoint WAL every X pages: helps to control WAL growth
-    busyTimeout: 10000, // [ms] Allow additional time until timeout is called, to reduce database lock errors
-    memoryMapSize: 134217728, // Enable memory-mapped IO (small gain in performance - larger size allocation has diminishing gains)
+    busyTimeout: 5000, // [ms] Allow additional time until timeout is called, to reduce database lock errors
+    memoryMapSize: 134217728, //[bytes] Enable memory-mapped IO (small gain in performance - larger size allocation has diminishing gains)
   },
 };

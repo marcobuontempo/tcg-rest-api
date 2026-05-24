@@ -132,23 +132,3 @@ export const BuyMarketListingSchema = z.object(
   },
   "invalid request fields",
 );
-
-export const AutoBuyMarketListingSchema = z.object(
-  {
-    body: z.strictObject(
-      {
-        name: CardSchema.shape.name,
-        max_price_per_card: z.coerce
-          .number("'max_price_per_card' must be a number")
-          .nonnegative("'max_price_per_card' must not be negative")
-          .refine(
-            (value) => Number.isInteger(value * 100),
-            "'price' must have at most 2 decimal places'",
-          )
-          .transform((value) => Math.round(value * 100)),
-      },
-      "invalid request body fields",
-    ),
-  },
-  "invalid request fields",
-);

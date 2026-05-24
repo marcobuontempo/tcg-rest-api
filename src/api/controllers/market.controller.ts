@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import {
-  AutoBuyMarketListingSchema,
   BuyMarketListingSchema,
   CreateMarketListingSchema,
   DeleteMarketListingSchema,
@@ -15,6 +14,8 @@ import { ApiError } from "../../utilities/error.util.js";
 import { MarketListing } from "../../database/models/marketListing.model.js";
 import { TypedRequest } from "../../types/express.js";
 import { User } from "../../database/models/user.model.js";
+import { cache } from "../../cache/index.js";
+import { formatBalanceForResponse } from "../../utilities/balance.util.js";
 
 // POST: /api/market
 export const createMarketListing = async (
@@ -25,46 +26,54 @@ export const createMarketListing = async (
   // get new market listing data
   const { name: cardName, quantity, price_per_card } = req.body;
 
+  // get card data from cache
+  const card = cache.cards.data.get(cardName);
+  if (!card) throw ApiError.badRequest(`'${cardName}' card does not exist`);
+
   // start transaction
   const transaction = await database.transaction();
 
   try {
-    // find if user owns card with necessary quantity
+    // quick check to fail fast
     const userCard = await UserCard.findOne({
       where: {
         user_id: req.user.id,
+        card_id: card.id,
         quantity: {
           [Op.gte]: quantity,
         },
       },
-      include: [
-        {
-          model: Card,
-          where: {
-            name: cardName,
-          },
-        },
-      ],
       transaction,
     });
-
-    if (!userCard) {
+    if (!userCard)
       throw ApiError.badRequest(
         `user does not own sufficient quantity (${quantity}) of '${cardName}' cards`,
       );
-    }
 
-    // reduce quantity of card owned
-    await userCard.decrement("quantity", {
-      by: quantity,
-      transaction,
-    });
+    // reduce quantity of card
+    const [updated] = await UserCard.update(
+      {
+        quantity: literal(`quantity - ${quantity}`),
+      },
+      {
+        where: {
+          user_id: req.user.id,
+          card_id: card.id,
+          quantity: { [Op.gte]: quantity },
+        },
+        transaction,
+      },
+    );
+    if (updated === 0)
+      throw ApiError.badRequest(
+        `user does not own sufficient quantity (${quantity}) of '${cardName}' cards`,
+      );
 
     // create card listing
     const marketListing = await MarketListing.create(
       {
         user_id: req.user.id,
-        card_id: userCard.card_id,
+        card_id: card.id,
         quantity: quantity,
         price_per_card: price_per_card,
       },
@@ -74,10 +83,9 @@ export const createMarketListing = async (
     // commit transaction
     await transaction.commit();
 
-    return res.status(200).json({
-      listing_id: marketListing.id,
-    });
+    return res.status(200).json({ listing_id: marketListing.id });
   } catch (err) {
+    // rollback on failure
     await transaction.rollback();
     return next(err);
   }
@@ -226,6 +234,7 @@ export const deleteMarketListing = async (
   const transaction = await database.transaction();
 
   try {
+    // find the market listing
     const marketListing = await MarketListing.findOne({
       where: {
         id: req.params.listing_id,
@@ -235,43 +244,41 @@ export const deleteMarketListing = async (
 
     if (!marketListing) {
       throw ApiError.notFound(
-        `market listing does not exist (id:${req.params.id})`,
+        `market listing does not exist (id:${req.params.listing_id})`,
       );
     }
 
     if (marketListing.user_id !== req.user.id) {
       throw ApiError.forbidden(
-        `market listing (id:${req.params.id}) is not owned by the requested user`,
+        `market listing (id:${req.params.listing_id}) is not owned by the requested user`,
       );
     }
 
-    // create/update UserCard entry with quantity that was removed from market listing
-    const [userCard, created] = await UserCard.findOrCreate({
-      where: {
-        user_id: marketListing.user_id,
-        card_id: marketListing.card_id,
-      },
-      defaults: {
-        user_id: marketListing.user_id,
-        card_id: marketListing.card_id,
-        quantity: marketListing.quantity,
-      },
-      transaction,
-    });
-
-    if (!created) {
-      await userCard.increment("quantity", {
-        by: marketListing.quantity,
+    // create/update UserCard entry with the card quantity in the existing market listing
+    await UserCard.sequelize?.query(
+      `INSERT INTO user_cards (user_id, card_id, quantity)
+       VALUES (:user_id, :card_id, :quantity)
+       ON CONFLICT (user_id, card_id)
+       DO UPDATE SET quantity = quantity + :quantity`,
+      {
+        replacements: {
+          user_id: marketListing.user_id,
+          card_id: marketListing.card_id,
+          quantity: marketListing.quantity,
+        },
         transaction,
-      });
-    }
+      },
+    );
 
+    // delete the market listing
     await marketListing.destroy({ transaction });
 
+    // commit transaction
     await transaction.commit();
 
     return res.status(204).send();
   } catch (err) {
+    // rollback if error
     await transaction.rollback();
     return next(err);
   }
@@ -322,50 +329,43 @@ export const buyMarketListing = async (
     const payment = marketListing.price_per_card * quantity;
     if (payment > req.user.balance) {
       throw ApiError.badRequest(
-        `'user' does not have sufficient funds for the total payment amount (has: ${req.user.balance}, required: ${payment / 100})`,
+        `'user' does not have sufficient funds for the total payment amount (has: ${formatBalanceForResponse(req.user.balance)}, required: ${formatBalanceForResponse(payment)})`,
       );
     }
 
     // update the buyer's user card quantity, or create an entry if they don't own the card yet
-    const [userCard, created] = await UserCard.findOrCreate({
-      where: {
-        user_id: req.user.id,
-        card_id: marketListing.card_id,
-      },
-      defaults: {
-        user_id: req.user.id,
-        card_id: marketListing.card_id,
-        quantity,
-      },
-      transaction,
-    });
-
-    if (!created) {
-      await userCard.increment("quantity", {
-        by: quantity,
+    await UserCard.sequelize?.query(
+      `INSERT INTO user_cards (user_id, card_id, quantity, created_at, updated_at)
+       VALUES (:user_id, :card_id, :quantity, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+       ON CONFLICT (user_id, card_id)
+       DO UPDATE SET 
+          quantity = quantity + :quantity,
+          updated_at = CURRENT_TIMESTAMP`,
+      {
+        replacements: {
+          user_id: req.user.id,
+          card_id: marketListing.card_id,
+          quantity: quantity,
+        },
         transaction,
-      });
-    }
+      },
+    );
 
-    // reduce quantity of seller's listing (or delete if quantity=0)
-    if (marketListing.quantity === quantity) {
-      await marketListing.destroy({ transaction });
-    } else {
-      await marketListing.decrement("quantity", {
-        by: quantity,
-        transaction,
-      });
-    }
+    // reduce quantity of seller's listing
+    await marketListing.decrement({ quantity: quantity }, { transaction });
 
     // decrease buyer's balance
-    await req.user.decrement("balance", { by: payment, transaction });
+    await User.decrement(
+      { balance: payment },
+      { where: { id: req.user.id }, transaction },
+    );
     // increase seller's balance
-    await User.increment("balance", {
-      where: { id: marketListing.user_id },
-      by: payment,
-      transaction,
-    });
+    await User.increment(
+      { balance: payment },
+      { where: { id: marketListing.user_id }, transaction },
+    );
 
+    // commit transaction
     await transaction.commit();
 
     return res.status(200).json({
@@ -373,113 +373,7 @@ export const buyMarketListing = async (
       quantity: quantity,
     });
   } catch (err) {
-    await transaction.rollback();
-    return next(err);
-  }
-};
-
-// POST: /api/market/auto-buy
-export const autoBuyMarketListing = async (
-  req: TypedRequest<typeof AutoBuyMarketListingSchema>,
-  res: Response,
-  next: NextFunction,
-) => {
-  const { name, max_price_per_card } = req.body;
-
-  const transaction = await database.transaction();
-
-  try {
-    const listings = (await MarketListing.findAll({
-      where: {
-        user_id: {
-          [Op.ne]: req.user.id,
-        },
-        price_per_card: {
-          [Op.lte]: Math.min(max_price_per_card, req.user.balance),
-        },
-        quantity: {
-          [Op.gte]: 1,
-        },
-      },
-      include: [
-        {
-          model: Card,
-          where: { name },
-        },
-      ],
-      order: [["price_per_card", "ASC"]],
-      transaction,
-    })) as (MarketListing & { Card: Card })[];
-
-    if (listings.length === 0) {
-      throw ApiError.notFound(
-        "no market listings match the details provided and/or are below the user's balance",
-      );
-    }
-
-    for (const listing of listings) {
-      const [updated] = await MarketListing.update(
-        { quantity: literal("quantity - 1") },
-        {
-          where: {
-            id: listing.id,
-            quantity: { [Op.gte]: 1 },
-          },
-          validate: true,
-          transaction,
-        },
-      );
-
-      if (updated === 0) continue; // purchase failed (may be deleted or already bought) -> try next
-
-      const [userCard, created] = await UserCard.findOrCreate({
-        where: {
-          user_id: req.user.id,
-          card_id: listing.card_id,
-        },
-        defaults: {
-          user_id: req.user.id,
-          card_id: listing.card_id,
-          quantity: 1,
-        },
-        transaction,
-      });
-
-      if (!created) {
-        await userCard.increment("quantity", {
-          by: 1,
-          transaction,
-        });
-      }
-
-      // reduce quantity of seller's listing (or delete if quantity=0)
-      if (listing.quantity === 1) {
-        await listing.destroy({ transaction });
-      } else {
-        await listing.decrement("quantity", {
-          by: 1,
-          transaction,
-        });
-      }
-
-      const payment = listing.price_per_card;
-      // decrease buyer's balance
-      await req.user.decrement("balance", { by: payment, transaction });
-      // increase seller's balance
-      await User.increment("balance", {
-        where: { id: listing.user_id },
-        by: payment,
-        transaction,
-      });
-
-      await transaction.commit();
-
-      return res.status(200).json({
-        name: listing.Card.name,
-        quantity: 1,
-      });
-    }
-  } catch (err) {
+    // rollback on error
     await transaction.rollback();
     return next(err);
   }

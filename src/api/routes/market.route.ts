@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  autoBuyMarketListing,
   buyMarketListing,
   createMarketListing,
   deleteMarketListing,
@@ -10,7 +9,6 @@ import {
 } from "../controllers/market.controller.js";
 import { validateRequest } from "../middlewares/validateRequest.middleware.js";
 import {
-  AutoBuyMarketListingSchema,
   BuyMarketListingSchema,
   CreateMarketListingSchema,
   DeleteMarketListingSchema,
@@ -54,13 +52,6 @@ router.post(
   requireNoActiveBattle,
   validateRequest(BuyMarketListingSchema),
   buyMarketListing,
-);
-
-router.post(
-  "/auto-buy",
-  requireNoActiveBattle,
-  validateRequest(AutoBuyMarketListingSchema),
-  autoBuyMarketListing,
 );
 
 export default router;

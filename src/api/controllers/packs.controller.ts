@@ -79,8 +79,8 @@ export const openDailyPack = async (
       VALUES ${insertQuery.join(",")}
       ON CONFLICT(user_id, card_id)
       DO UPDATE SET
-        quantity = user_cards.quantity + EXCLUDED.quantity,
-        updated_at = CURRENT_TIMESTAMP;
+         quantity = user_cards.quantity + EXCLUDED.quantity,
+         updated_at = CURRENT_TIMESTAMP;
     `);
 
     // return the list of cards

@@ -24,6 +24,23 @@ export const validateRequest =
       );
     }
 
-    // if success, continue with middleware pipe
+    // if valid, we assign the validated and/or transformed values back to the req object
+    if (result.data?.body) {
+      Object.assign(req.body, result.data.body);
+    }
+
+    if (result.data?.query) {
+      Object.assign(req.query, result.data.query);
+    }
+
+    if (result.data?.params) {
+      Object.assign(req.params, result.data.params);
+    }
+
+    if (result.data?.headers) {
+      Object.assign(req.headers, result.data.headers);
+    }
+
+    // continue middleware pipeline
     return next();
   };
