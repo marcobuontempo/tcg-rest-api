@@ -34,7 +34,8 @@
     "start": "NODE_ENV=production node dist/index.js",
     "benchmark:pack": "node benchmarks/pack.bench.js",
     "benchmark:battle": "node benchmarks/battle.bench.js",
-    "benchmark:market": "node benchmarks/market.bench.js"
+    "benchmark:market": "node benchmarks/market.bench.js",
+    "benchmark:custom": "node benchmarks/custom.bench.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

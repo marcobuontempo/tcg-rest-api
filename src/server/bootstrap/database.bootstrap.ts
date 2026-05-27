@@ -16,10 +16,6 @@ export const databaseBootstrap = async () => {
 
   initialiseAssociations();
 
-  await purgeExpiredSeeds();
-
-  await purgeRedundantRows();
-
   // purge redundant database info every day at midnight
   cron.schedule("0 0 * * *", async () => {
     await purgeExpiredSeeds();
@@ -27,6 +23,11 @@ export const databaseBootstrap = async () => {
   });
 
   await database.sync();
+
+  await purgeExpiredSeeds();
+
+  await purgeRedundantRows();
+
   console.log("Synced all models to database...");
 };
 
