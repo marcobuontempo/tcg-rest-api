@@ -12,8 +12,13 @@ export const adminBootstrap = async () => {
       username: username,
       password_hash: hashedPassword,
     });
-    console.warn(
-      `===== WARNING: no administrator account found - created default account (username: ${username}) - please login and change the password immediately! =====`,
-    );
+    console.warn(`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+| WARNING: NO ADMINISTRATOR ACCOUNT NOT FOUND
+| created default account
+| * username: ${username}
+| * password: ${password}
+| Please save these credentials, they are only shown once!
+| Login (using '/api/admin') and change the password immediately! 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
   }
 };

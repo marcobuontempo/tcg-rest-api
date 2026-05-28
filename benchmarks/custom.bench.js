@@ -1,12 +1,10 @@
-const REQUESTS = 1000;
-const CONCURRENCY = 25;
+const RATE = 1; // requests per second
+const DURATION_TARGET = 5000; // ms to attempt to run the test for
 
 const count = {
   success: 0,
   failed: 0,
 };
-
-let successTime = 0;
 
 async function runIteration(i) {
   let success = true;
@@ -59,8 +57,6 @@ async function runIteration(i) {
     const battleData = await battleRes.json();
     if (!battleRes.ok) errorCodes += `${battleRes.status};`;
 
-    console.log(battleData.result ?? battleData.message, seed);
-
     // MARKET
     const marketRes = await fetch("http://localhost:4000/api/market", {
       method: "POST",
@@ -77,7 +73,8 @@ async function runIteration(i) {
     await marketRes.json();
     if (!marketRes.ok) errorCodes += `${marketRes.status};`;
 
-    success = registrationRes.ok && battleRes.ok && marketRes.ok;
+    success =
+      registrationRes.ok && openPackRes.ok && battleRes.ok && marketRes.ok;
   } catch (err) {
     success = false;
   }
@@ -87,30 +84,50 @@ async function runIteration(i) {
   );
   if (success) {
     count.success++;
-    successTime += performance.now() - start;
   } else {
     count.failed++;
   }
 }
 
+const startTime = performance.now();
+
 async function main() {
-  let index = 0;
+  const interval = 1000 / RATE;
+  const requestsRequired = RATE * (DURATION_TARGET / 1000);
+  let index = 1;
 
-  async function worker(workerId) {
-    while (index < REQUESTS) {
+  await new Promise((resolve) => {
+    const timer = setInterval(async () => {
+      if (index > requestsRequired) {
+        clearInterval(timer);
+        resolve();
+        return;
+      }
       const current = index++;
-      await runIteration(current);
-    }
-  }
+      runIteration(current);
+    }, interval);
+  });
 
-  await Promise.all(Array.from({ length: CONCURRENCY }, (_, i) => worker(i)));
+  // wait for all in-flight requests to complete
+  await new Promise((resolve) => {
+    const wait = setInterval(() => {
+      if (count.success + count.failed >= requestsRequired) {
+        clearInterval(wait);
+        resolve();
+      }
+    }, 100);
+  });
+
+  const totalTime = (performance.now() - startTime) / 1000; // seconds
+  const totalRequests = count.success + count.failed;
 
   console.log(
-    `Complete - 
-    [${(count.success * 100) / (count.success + count.failed).toFixed(2)}%]
-    [success=${count.success}] 
+    `Complete -
+    [${((count.success * 100) / totalRequests).toFixed(2)}%]
+    [success=${count.success}]
     [failed=${count.failed}]
-    [avg. req: ${successTime / count.success}]`,
+    [avg. rps=${(totalRequests / totalTime).toFixed(2)}]
+    [total time=${totalTime.toFixed(2)}s]`,
   );
 }
 

@@ -50,7 +50,7 @@ Response:
 POST /api/battle
 x-user-seed: ABCDEFGH12345678
 
-Body: 
+Body:
 {
     "cards": [ "card1_name", "card2_name", "card3_name", "card4_name", "card5_name" ],
     "difficulty": 1

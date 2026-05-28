@@ -32,6 +32,8 @@
     "dev": "NODE_ENV=development tsx watch src/index.ts",
     "build": "tsc",
     "start": "NODE_ENV=production node dist/index.js",
+    "benchmark-server": "NODE_ENV=development BENCHMARK=true tsx src/index.ts",
+    "benchmark:register": "node benchmarks/register.bench.js",
     "benchmark:pack": "node benchmarks/pack.bench.js",
     "benchmark:battle": "node benchmarks/battle.bench.js",
     "benchmark:market": "node benchmarks/market.bench.js",

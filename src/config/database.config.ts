@@ -6,7 +6,10 @@ export const database = {
   options: {
     dialect: "sqlite",
     storage: process.env.DB_LOCATION ?? "./data/database.sqlite",
-    logging: false,
+    logging: process.env.BENCHMARK
+      ? (sql: string, timing: number) => console.log(`[${timing}ms] ${sql}`)
+      : false,
+    benchmark: process.env.BENCHMARK,
     pool: {
       max: Number(process.env.DB_POOL_SIZE ?? 1),
       min: 1,

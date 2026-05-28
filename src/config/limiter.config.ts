@@ -47,7 +47,7 @@ export const limiter: Record<
     // 1 request per second
     ...baseLimiter,
     windowMs: 1000,
-    limit: 3,
+    limit: 1,
   },
 
   registration: {
