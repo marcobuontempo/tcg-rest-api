@@ -5,6 +5,9 @@ import { UserStats } from "../../database/models/userStats.model.js";
 import { ApiError } from "../../utilities/error.util.js";
 import { cache } from "../../cache/index.js";
 import { formatBalanceForResponse } from "../../utilities/balance.util.js";
+import { UserCard } from "../../database/models/userCard.model.js";
+import { Card } from "../../database/models/card.model.js";
+import { col } from "sequelize";
 
 // GET: /api/user/me
 export const getUserData = async (
@@ -27,6 +30,38 @@ export const getUserData = async (
     stats: stats,
     created_at: req.user.created_at,
   });
+};
+
+// GET: /api/user/me/cards
+export const getUserCards = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  // find user's cards
+  const cards = await UserCard.findAll({
+    where: { user_id: req.user.id },
+    attributes: [
+      "quantity",
+      [col("Card.name"), "name"],
+      [col("Card.type"), "type"],
+      [col("Card.rarity"), "rarity"],
+      [col("Card.attack"), "attack"],
+      [col("Card.defense"), "defense"],
+    ],
+    include: [
+      {
+        model: Card,
+        attributes: [],
+      },
+    ],
+    raw: true,
+  });
+
+  if (!cards) throw ApiError.notFound("could not fetch user's cards");
+
+  // return data
+  return res.status(200).json(cards);
 };
 
 // PATCH: /api/user/me

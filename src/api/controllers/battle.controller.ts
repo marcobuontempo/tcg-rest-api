@@ -139,12 +139,14 @@ export const playBattle = async (
       if (increments.user?.balance || increments.user?.xp) {
         await User.increment(increments.user, {
           where: { id: req.user.id },
+          transaction,
         });
       }
 
       // update user stats
       await UserStats.increment(increments.stats, {
         where: { user_id: req.user.id },
+        transaction,
       });
 
       // commit transaction

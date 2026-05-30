@@ -2,7 +2,7 @@ import autocannon from "autocannon";
 
 const PORT = 4000;
 const CONNECTIONS = 50;
-const DURATION = 30;
+const DURATION = 10;
 
 const generateUsers = async () => {
   const requests = Array.from({ length: CONNECTIONS }, async () => {

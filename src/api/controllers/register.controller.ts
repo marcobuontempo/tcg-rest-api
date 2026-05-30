@@ -16,8 +16,8 @@ export const registerUser = async (
   // hash seed for database storage
   const seedHash = hashSeed(seed);
 
-  // naively create user (risk of seed collision is essentially mathematically impossible)
-  await User.create({ seed_hash: seedHash });
+  // naively create user (risk of seed collision is mathematically improbable)
+  const newUser = await User.create({ seed_hash: seedHash });
 
   // update the local cache user count
   cache.stats.total_users += 1;
@@ -25,6 +25,7 @@ export const registerUser = async (
   // return data
   return res.status(201).json({
     seed: seed,
+    username: newUser.username,
     message:
       "User registered - please store the seed safely as it cannot be retrieved later!",
   });

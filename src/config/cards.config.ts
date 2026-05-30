@@ -21,7 +21,7 @@ export const cards = {
     {
       name: "bar",
       type: "cloud",
-      rarity: "kilo",
+      rarity: "mega",
       drop_rate: 9500,
       attack: 6000,
       defense: 1000,
@@ -29,7 +29,7 @@ export const cards = {
     {
       name: "baz",
       type: "shell",
-      rarity: "kilo",
+      rarity: "giga",
       drop_rate: 9000,
       attack: 6000,
       defense: 500,
@@ -37,7 +37,7 @@ export const cards = {
     {
       name: "quux",
       type: "tree",
-      rarity: "kilo",
+      rarity: "tera",
       drop_rate: 5000,
       attack: 100,
       defense: 10000,
@@ -45,7 +45,7 @@ export const cards = {
     {
       name: "corge",
       type: "tree",
-      rarity: "kilo",
+      rarity: "peta",
       drop_rate: 1000,
       attack: 10000,
       defense: 10000,
@@ -53,7 +53,7 @@ export const cards = {
     {
       name: "grault",
       type: "cloud",
-      rarity: "kilo",
+      rarity: "exa",
       drop_rate: 10000,
       attack: 10000,
       defense: 10000,
