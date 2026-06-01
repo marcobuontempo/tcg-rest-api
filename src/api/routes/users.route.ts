@@ -6,16 +6,41 @@ import {
   getUserCards,
 } from "../controllers/users.controller.js";
 import { validateRequest } from "../middlewares/validateRequest.middleware.js";
-import { UpdateUsernameSchema } from "../../schemas/user.schema.js";
+import {
+  UpdateUsernameSchema,
+  UserSeedHeadersSchema,
+} from "../../schemas/user.schema.js";
+import { requireValidUserSeed } from "../middlewares/requireValidUserSeed.js";
 
 const router = Router();
 
-router.get("/me", getUserData);
+router.get(
+  "/me",
+  validateRequest(UserSeedHeadersSchema),
+  requireValidUserSeed,
+  getUserData,
+);
 
-router.get("/me/cards", getUserCards);
+router.get(
+  "/me/cards",
+  validateRequest(UserSeedHeadersSchema),
+  requireValidUserSeed,
+  getUserCards,
+);
 
-router.patch("/me", validateRequest(UpdateUsernameSchema), updateUsername);
+router.patch(
+  "/me",
+  validateRequest(UserSeedHeadersSchema),
+  requireValidUserSeed,
+  validateRequest(UpdateUsernameSchema),
+  updateUsername,
+);
 
-router.delete("/me", deleteUser);
+router.delete(
+  "/me",
+  validateRequest(UserSeedHeadersSchema),
+  requireValidUserSeed,
+  deleteUser,
+);
 
 export default router;

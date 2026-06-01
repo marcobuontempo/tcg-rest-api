@@ -16,10 +16,17 @@ import {
   GetMarketListingByIdSchema,
 } from "../../schemas/marketListing.schema.js";
 import { requireNoActiveBattle } from "../middlewares/requireNoActiveBattle.js";
+import { requireValidUserSeed } from "../middlewares/requireValidUserSeed.js";
+import { UserSeedHeadersSchema } from "../../schemas/user.schema.js";
 
 const router = Router();
 
-router.get("/me", getOwnMarketListings);
+router.get(
+  "/me",
+  validateRequest(UserSeedHeadersSchema),
+  requireValidUserSeed,
+  getOwnMarketListings,
+);
 
 router.get(
   "/:listing_id",
@@ -35,6 +42,8 @@ router.get(
 
 router.post(
   "/",
+  validateRequest(UserSeedHeadersSchema),
+  requireValidUserSeed,
   requireNoActiveBattle,
   validateRequest(CreateMarketListingSchema),
   createMarketListing,
@@ -42,6 +51,8 @@ router.post(
 
 router.delete(
   "/:listing_id",
+  validateRequest(UserSeedHeadersSchema),
+  requireValidUserSeed,
   requireNoActiveBattle,
   validateRequest(DeleteMarketListingSchema),
   deleteMarketListing,
@@ -49,6 +60,8 @@ router.delete(
 
 router.post(
   "/:listing_id/buy",
+  validateRequest(UserSeedHeadersSchema),
+  requireValidUserSeed,
   requireNoActiveBattle,
   validateRequest(BuyMarketListingSchema),
   buyMarketListing,

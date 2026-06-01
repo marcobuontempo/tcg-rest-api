@@ -31,47 +31,16 @@ router.use("/register", registerRoute);
 
 router.use("/admin", rateLimit(config.limiter.admin), adminRoute);
 
-router.use(
-  "/users",
-  validateRequest(UserSeedHeadersSchema),
-  requireValidUserSeed,
-  usersRoute,
-);
+router.use("/users", usersRoute);
 
-router.use(
-  "/cards",
-  validateRequest(UserSeedHeadersSchema),
-  requireValidUserSeed,
-  cardsRoute,
-);
+router.use("/cards", cardsRoute);
 
-router.use(
-  "/market",
-  validateRequest(UserSeedHeadersSchema),
-  requireValidUserSeed,
-  marketRoute,
-);
+router.use("/market", marketRoute);
 
-router.use(
-  "/packs",
-  validateRequest(UserSeedHeadersSchema),
-  requireValidUserSeed,
-  packsRoute,
-);
+router.use("/packs", packsRoute);
 
-router.use(
-  "/battle",
-  validateRequest(UserSeedHeadersSchema),
-  requireValidUserSeed,
-  requireNoActiveBattle,
-  battleRoute,
-);
+router.use("/battle", requireNoActiveBattle, battleRoute);
 
-router.use(
-  "/server",
-  validateRequest(UserSeedHeadersSchema),
-  requireValidUserSeed,
-  serverRoute,
-);
+router.use("/server", serverRoute);
 
 export default router;

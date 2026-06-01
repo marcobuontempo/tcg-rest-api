@@ -4,6 +4,7 @@ import { hashSeed } from "../../utilities/seed.util.js";
 import { User } from "../../database/models/user.model.js";
 import { TypedRequest } from "../../types/express.js";
 import { UserSeedHeadersSchema } from "../../schemas/user.schema.js";
+import { validateRequest } from "./validateRequest.middleware.js";
 
 export const requireValidUserSeed = async (
   req: TypedRequest<typeof UserSeedHeadersSchema>,
