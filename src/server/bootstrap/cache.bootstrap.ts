@@ -126,34 +126,35 @@ const populatePacksCache = async (dbCards: Card[]) => {
 
   let packsProcessed = 0;
   for (const [name, contents] of Object.entries(config.packs.types)) {
+    const filteredCards: Card[] = [];
     for (const rarity of contents) {
-      const filteredCards = dbCards.filter((card) => card.rarity === rarity);
-
-      const cumulativeDropRate = filteredCards.reduce(
-        (prev, curr) => prev + curr.drop_rate,
-        0,
-      );
-
-      const scaledPrice = Math.round(
-        config.packs.minPrice +
-          (config.packs.maxPrice - config.packs.minPrice) *
-            Math.pow(
-              Math.min(
-                1,
-                Math.max(
-                  0,
-                  packsProcessed / (Object.keys(config.packs.types).length - 1),
-                ),
-              ),
-              2.3,
-            ),
-      );
-      cache.packs.data.set(name.toLowerCase() as PackName, {
-        cards: filteredCards,
-        cumulativeDropRate: cumulativeDropRate,
-        cost: Math.round(scaledPrice / 500) * 500, // calculation to scale the cost according to popularity
-      });
+      filteredCards.push(...dbCards.filter((card) => card.rarity === rarity));
     }
+
+    const cumulativeDropRate = filteredCards.reduce(
+      (prev, curr) => prev + curr.drop_rate,
+      0,
+    );
+
+    const scaledPrice = Math.round(
+      config.packs.minPrice +
+        (config.packs.maxPrice - config.packs.minPrice) *
+          Math.pow(
+            Math.min(
+              1,
+              Math.max(
+                0,
+                packsProcessed / (Object.keys(config.packs.types).length - 1),
+              ),
+            ),
+            2.3,
+          ),
+    );
+    cache.packs.data.set(name.toLowerCase() as PackName, {
+      cards: filteredCards,
+      cumulativeDropRate: cumulativeDropRate,
+      cost: Math.round(scaledPrice / 500) * 500, // calculation to scale the cost according to popularity
+    });
     packsProcessed += 1;
   }
 

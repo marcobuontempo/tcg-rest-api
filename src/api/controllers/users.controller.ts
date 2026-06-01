@@ -27,6 +27,7 @@ export const getUserData = async (
     username: req.user.username,
     balance: formatBalanceForResponse(req.user.balance),
     xp: req.user.xp,
+    last_daily_pack_at: req.user.last_daily_pack_at,
     stats: stats,
     created_at: req.user.created_at,
   });
