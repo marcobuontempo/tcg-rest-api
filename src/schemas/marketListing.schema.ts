@@ -45,7 +45,7 @@ const allowedSortFields = [
   "type",
   "rarity",
   "attack",
-  "defense",
+  "defence",
   "price",
   "newest",
 ] as const;

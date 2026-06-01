@@ -61,15 +61,15 @@ export const simulateBattle = (
     opponent: opponentCards.length,
   };
 
-  // keep a copy of attack/defense to track rolling stats during battle
+  // keep a copy of attack/defence to track rolling stats during battle
   let currentCard = {
     player: {
       card: playerCards[cardCount.player - 1],
-      health: playerCards[cardCount.player - 1].defense,
+      health: playerCards[cardCount.player - 1].defence,
     },
     opponent: {
       card: opponentCards[cardCount.opponent - 1],
-      health: opponentCards[cardCount.opponent - 1].defense,
+      health: opponentCards[cardCount.opponent - 1].defence,
     },
   };
 
@@ -133,7 +133,7 @@ export const simulateBattle = (
         if (cardCount.opponent > 0) {
           currentCard.opponent = {
             card: opponentCards[cardCount.opponent - 1],
-            health: opponentCards[cardCount.opponent - 1].defense,
+            health: opponentCards[cardCount.opponent - 1].defence,
           };
         }
       } else if (currentDefender === "player") {
@@ -141,7 +141,7 @@ export const simulateBattle = (
         if (cardCount.player > 0) {
           currentCard.player = {
             card: playerCards[cardCount.player - 1],
-            health: playerCards[cardCount.player - 1].defense,
+            health: playerCards[cardCount.player - 1].defence,
           };
         }
       }

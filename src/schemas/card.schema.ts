@@ -25,9 +25,9 @@ export const CardSchema = z.object({
     .int("'attack' must be an integer")
     .min(1, "'attack' must be between 0-10000")
     .max(10000, "'attack' must be between 0-10000"),
-  defense: z
-    .int("'defense' must be an integer")
-    .min(1, "'defense' must be between 0-10000")
+  defence: z
+    .int("'defence' must be an integer")
+    .min(1, "'defence' must be between 0-10000")
     .max(10000, "'drop_rate' must be between 0-10000"),
   created_at: z.date("'created_at' must be a date"),
   updated_at: z.date("'updated_at' must be a date"),
@@ -38,7 +38,7 @@ const allowedSortFields = [
   "type",
   "rarity",
   "attack",
-  "defense",
+  "defence",
 ] as const;
 export const GetAllCardsSchema = z.object({
   query: z
@@ -55,14 +55,14 @@ export const GetAllCardsSchema = z.object({
           .number("'max_attack' must be a number")
           .int("'max_attack' must be an integer")
           .nonnegative("'max_attack' must not be negative"),
-        min_defense: z.coerce
-          .number("'min_defense' must be a number")
-          .int("'min_defense' must be an integer")
-          .nonnegative("'min_defense' must not be negative"),
-        max_defense: z.coerce
-          .number("'max_defense' must be a number")
-          .int("'max_defense' must be an integer")
-          .nonnegative("'max_defense' must not be negative"),
+        min_defence: z.coerce
+          .number("'min_defence' must be a number")
+          .int("'min_defence' must be an integer")
+          .nonnegative("'min_defence' must not be negative"),
+        max_defence: z.coerce
+          .number("'max_defence' must be a number")
+          .int("'max_defence' must be an integer")
+          .nonnegative("'max_defence' must not be negative"),
         sort_by: z.enum(
           allowedSortFields,
           `'sort_by' must be one of: ${allowedSortFields.join(", ")}`,

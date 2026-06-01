@@ -75,7 +75,7 @@ const populateBattleCache = async (dbCards: Card[]) => {
   cache.battle.difficultyPools.clear();
 
   // populate difficulty pools (moving window oof pooled cards, based on card strength. 1=weakest, 10=strongest)
-  dbCards.sort((a, b) => a.attack + a.defense - b.attack + b.defense); // sort by power (att+def)
+  dbCards.sort((a, b) => a.attack + a.defence - b.attack + b.defence); // sort by power (att+def)
   const maxStart = Math.max(
     dbCards.length - config.battle.difficultyPoolSize,
     0,

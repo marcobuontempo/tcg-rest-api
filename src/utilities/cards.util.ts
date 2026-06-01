@@ -6,6 +6,6 @@ export const formatCardForResponse = (card: Card | Card["dataValues"]) => {
     type: card.type,
     rarity: card.rarity,
     attack: card.attack,
-    defense: card.defense,
+    defence: card.defence,
   };
 };

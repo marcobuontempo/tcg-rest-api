@@ -19,7 +19,7 @@ export class Card extends Model<
   declare rarity: CardAttributes["rarity"];
   declare drop_rate: CardAttributes["drop_rate"];
   declare attack: CardAttributes["attack"];
-  declare defense: CardAttributes["defense"];
+  declare defence: CardAttributes["defence"];
   declare created_at: CreationOptional<CardAttributes["created_at"]>;
   declare updated_at: CreationOptional<CardAttributes["updated_at"]>;
 }
@@ -61,7 +61,7 @@ Card.init(
       validate: { min: 1, max: 10000 },
     },
 
-    defense: {
+    defence: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: { min: 1, max: 10000 },

@@ -47,7 +47,7 @@ export const getUserCards = async (
       [col("Card.type"), "type"],
       [col("Card.rarity"), "rarity"],
       [col("Card.attack"), "attack"],
-      [col("Card.defense"), "defense"],
+      [col("Card.defence"), "defence"],
     ],
     include: [
       {
