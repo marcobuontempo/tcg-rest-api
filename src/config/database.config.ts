@@ -11,7 +11,7 @@ export const database = {
       : false,
     benchmark: process.env.BENCHMARK,
     pool: {
-      max: Number(process.env.DB_POOL_SIZE ?? 1),
+      max: Number(process.env.DB_POOL_SIZE ?? 5),
       min: 1,
       idle: 10000,
     },

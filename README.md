@@ -10,7 +10,7 @@ _A gamified REST API built with Node.js and SQLite, designed to run as a single 
   - [Admin Routes](#admin-routes)
 - [Rate Limiting](#rate-limiting)
 - [Administrator Account](#administrator-account)
-- [Game](#game)
+- [Game Details](#game-details)
   - [Card Types](#card-types)
   - [Card Rarities](#card-rarities)
   - [Packs](#packs)
@@ -126,7 +126,14 @@ Password: tcg_password
 
 Login via `POST: /api/admin/login` and change the password immediately using `PATCH: /api/admin/password`
 
-## Game
+## Game Details
+
+> This game is a trading card system themed around computer science and software engineering concepts. All in-game terminology is derived from real-world technical ideas, reinterpreted into a stylised card battler.
+>
+> - **Card names** are based on metasyntactic variables commonly used in programming (e.g. foo, bar, baz).
+> - **Card types** use terms that have both technical and real-world meanings.
+> - **Rarities** are inspired by data storage size prefixes.
+> - **Pack names** are related to increasing levels of computational complexity.
 
 ### Card Types
 
@@ -163,9 +170,11 @@ Run a benchmark:
 
 ```bash
 # any of the following
+npm run benchmark:register
 npm run benchmark:pack
 npm run benchmark:market
 npm run benchmark:battle
+npm run benchmark:custom
 ```
 
 **Results (full saturation using autocannon):**
@@ -174,4 +183,4 @@ npm run benchmark:battle
 - ~10% failure rate (SQLite busy errors under extreme load)
 
 > Database locking is mostly caused by conflicting transactions with rollback. <br>
-> Real-world failure rate should be close to 0%, especially with rate limiting enabled.
+> Real-world failure rate should be ~0%, especially with rate limiting enabled, under expected user levels.
