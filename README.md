@@ -6,8 +6,7 @@ _A gamified REST API built with Node.js and SQLite, designed to run as a single 
 
 - [Quick Start](#quick-start)
 - [Routes](#routes)
-  - [Non-Registered Routes](#non-registered-routes)
-  - [Registered Routes](#registered-routes)
+  - [Main Routes](#main-routes)
   - [Admin Routes](#admin-routes)
 - [Rate Limiting](#rate-limiting)
 - [Administrator Account](#administrator-account)
@@ -74,16 +73,11 @@ Response:
 
 > All routes must be prefixed with `/api`
 
-### Non-Registered Routes
+### Main Routes
 
-| Method | Route       | Description                                    |
-| ------ | ----------- | ---------------------------------------------- |
-| `POST` | `/register` | Register a new account and receive a user seed |
-
-### Registered Routes
-
-| Method   | Route                    | Body                                                      | Query                                                                           | Requires x-user-seed | Description                                                    |
+| Method   | Route                    | Request Body                                              | Query                                                                           | Requires x-user-seed | Description                                                    |
 | -------- | ------------------------ | --------------------------------------------------------- | ------------------------------------------------------------------------------- | -------------------- | -------------------------------------------------------------- |
+| `POST`   | `/register`              |                                                           |                                                                                 | ✗                    | Register a new account and receive a user seed                 |
 | `GET`    | `/users/me`              |                                                           |                                                                                 | ✓                    | Get current user                                               |
 | `GET`    | `/users/me/cards`        |                                                           |                                                                                 | ✓                    | Get user's owned cards                                         |
 | `PATCH`  | `/users/me`              | `{ "username": "new_username" }`                          |                                                                                 | ✓                    | Update username                                                |

@@ -9,26 +9,35 @@ import { UserCard } from "../../database/models/userCard.model.js";
 import config from "../../config/index.js";
 
 export const databaseBootstrap = async () => {
-  await database.authenticate();
-  console.log("SQLite connected...");
+  try {
+    await database.authenticate();
+    console.log("SQLite connected...");
 
-  await configurePRAGMA();
+    await configurePRAGMA();
 
-  initialiseAssociations();
+    initialiseAssociations();
 
-  // purge redundant database info every day at midnight
-  cron.schedule("0 0 * * *", async () => {
+    // purge redundant database info every day at midnight
+    cron.schedule("0 0 * * *", async () => {
+      await purgeExpiredSeeds();
+      await purgeRedundantRows();
+    });
+
+    await database.sync();
+
     await purgeExpiredSeeds();
+
     await purgeRedundantRows();
-  });
 
-  await database.sync();
-
-  await purgeExpiredSeeds();
-
-  await purgeRedundantRows();
-
-  console.log("Synced all models to database...");
+    console.log("Synced all models to database...");
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    } else {
+      console.error("Unknown error occurred");
+    }
+    throw error; // important so server knows startup failed
+  }
 };
 
 const purgeExpiredSeeds = async () => {

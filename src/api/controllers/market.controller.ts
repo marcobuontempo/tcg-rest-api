@@ -139,18 +139,19 @@ export const getAllMarketListings = async (
   } = req.query;
 
   // build query statement
-  const searchQuery: any = {};
+  const listingQuery: any = {};
+  const cardQuery: any = {};
 
-  if (name) searchQuery.name = name;
-  if (type) searchQuery.type = type;
-  if (rarity) searchQuery.rarity = rarity;
+  if (name) cardQuery.name = name;
+  if (type) cardQuery.type = type;
+  if (rarity) cardQuery.rarity = rarity;
 
   if (min_price_per_card || max_price_per_card) {
-    searchQuery.price_per_card = {};
+    listingQuery.price_per_card = {};
     if (min_price_per_card)
-      searchQuery.price_per_card[Op.gte] = Number(min_price_per_card);
+      listingQuery.price_per_card[Op.gte] = Number(min_price_per_card);
     if (max_price_per_card)
-      searchQuery.price_per_card[Op.lte] = Number(max_price_per_card);
+      listingQuery.price_per_card[Op.lte] = Number(max_price_per_card);
   }
 
   // default to sorting by price (and transform "newest" to actual column name: "created_at")
@@ -162,7 +163,7 @@ export const getAllMarketListings = async (
   }
 
   const marketListings = await MarketListing.findAll({
-    where: searchQuery,
+    where: listingQuery,
     attributes: [
       [col("MarketListing.id"), "listing_id"],
       [col("Card.name"), "name"],
@@ -177,6 +178,7 @@ export const getAllMarketListings = async (
       {
         model: Card,
         attributes: [],
+        where: cardQuery,
       },
     ],
     order: [[sortBy, sortOrder]],
