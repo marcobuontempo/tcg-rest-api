@@ -4,6 +4,7 @@ import { validateRequest } from "../middlewares/validateRequest.middleware.js";
 import { BattleSchema } from "../../schemas/battle.schema.js";
 import { requireValidUserSeed } from "../middlewares/requireValidUserSeed.js";
 import { UserSeedHeadersSchema } from "../../schemas/user.schema.js";
+import { requireNoActiveBattle } from "../middlewares/requireNoActiveBattle.js";
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.post(
   "/",
   validateRequest(UserSeedHeadersSchema),
   requireValidUserSeed,
+  requireNoActiveBattle,
   validateRequest(BattleSchema),
   playBattle,
 );
