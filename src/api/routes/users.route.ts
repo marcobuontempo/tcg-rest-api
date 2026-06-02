@@ -10,7 +10,7 @@ import {
   UpdateUsernameSchema,
   UserSeedHeadersSchema,
 } from "../../schemas/user.schema.js";
-import { requireValidUserSeed } from "../middlewares/requireValidUserSeed.js";
+import { requireValidUserSeed } from "../middlewares/requireValidUserSeed.middleware.js";
 
 const router = Router();
 

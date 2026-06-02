@@ -4,10 +4,10 @@ import {
   openDailyPack,
   openPack,
 } from "../controllers/packs.controller.js";
-import { requireNoActiveBattle } from "../middlewares/requireNoActiveBattle.js";
+import { requireNoActiveBattle } from "../middlewares/requireNoActiveBattle.middleware.js";
 import { validateRequest } from "../middlewares/validateRequest.middleware.js";
 import { OpenPackSchema } from "../../schemas/packs.schema.js";
-import { requireValidUserSeed } from "../middlewares/requireValidUserSeed.js";
+import { requireValidUserSeed } from "../middlewares/requireValidUserSeed.middleware.js";
 import { UserSeedHeadersSchema } from "../../schemas/user.schema.js";
 
 const router = Router();

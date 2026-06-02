@@ -10,7 +10,7 @@ import {
   loginAdministrator,
   updateAdminPassword,
 } from "../controllers/administrator.controller.js";
-import { requireAdministrator } from "../middlewares/requireAdministrator.js";
+import { requireAdministrator } from "../middlewares/requireAdministrator.middleware.js";
 
 const router = Router();
 

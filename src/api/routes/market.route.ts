@@ -15,8 +15,8 @@ import {
   GetAllMarketListingsSchema,
   GetMarketListingByIdSchema,
 } from "../../schemas/marketListing.schema.js";
-import { requireNoActiveBattle } from "../middlewares/requireNoActiveBattle.js";
-import { requireValidUserSeed } from "../middlewares/requireValidUserSeed.js";
+import { requireNoActiveBattle } from "../middlewares/requireNoActiveBattle.middleware.js";
+import { requireValidUserSeed } from "../middlewares/requireValidUserSeed.middleware.js";
 import { UserSeedHeadersSchema } from "../../schemas/user.schema.js";
 
 const router = Router();

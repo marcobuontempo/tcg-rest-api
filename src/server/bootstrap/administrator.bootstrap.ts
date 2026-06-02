@@ -1,6 +1,6 @@
 import config from "../../config/index.js";
 import { Administrator } from "../../database/models/administrator.model.js";
-import { comparePasswords, hashPassword } from "../../utilities/auth.util.js";
+import { hashPassword } from "../../utilities/auth.util.js";
 
 export const adminBootstrap = async () => {
   const adminCount = (await Administrator.count()) ?? 0;
@@ -13,7 +13,7 @@ export const adminBootstrap = async () => {
       password_hash: hashedPassword,
     });
     console.warn(`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-| WARNING: NO ADMINISTRATOR ACCOUNT NOT FOUND
+| WARNING: ADMINISTRATOR ACCOUNT NOT FOUND
 | created default account
 | * username: ${username}
 | * password: ${password}

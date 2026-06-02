@@ -5,6 +5,7 @@ import { ApiError } from "../utilities/error.util.js";
 import { errorHandler } from "../api/middlewares/errorHandler.middleware.js";
 import router from "../api/routes/index.js";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 
 export const serverStart = async () => {
   try {
@@ -26,6 +27,10 @@ export const serverStart = async () => {
         methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
       }),
     );
+
+    // HTTP Security Headers
+    app.use(helmet());
+
     // Parse JSON Requests
     app.use(express.json());
 
