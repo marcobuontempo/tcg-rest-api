@@ -153,8 +153,10 @@ export const playBattle = async (
       await transaction.commit();
 
       // increase req.user values to match updated database committed stats
-      if (increments.user.balance) req.user.balance += increments.user.balance;
-      if (increments.user.xp) req.user.xp += increments.user.xp;
+      if (!increments.user?.balance) increments.user.balance = 0;
+      if (!increments.user?.xp) increments.user.xp = 0;
+      req.user.balance += increments.user.balance;
+      req.user.xp += increments.user.xp;
 
       // remove user from active battles list
       cache.battle.active.delete(req.user.id);
@@ -167,9 +169,7 @@ export const playBattle = async (
           : cardToBurn,
         win_amount: formatBalanceForResponse(increments.user.balance),
         xp_gain: increments.user.xp,
-        current_balance: formatBalanceForResponse(
-          req.user.balance + increments.user.balance,
-        ),
+        current_balance: formatBalanceForResponse(req.user.balance),
         current_xp: req.user.xp + increments.user.xp,
         battle_log: battleLog,
       });
