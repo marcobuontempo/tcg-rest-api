@@ -108,8 +108,10 @@ Response:
 
 | Rule                  | Limit (per user)       |
 | --------------------- | ---------------------- |
-| Global                | 10 requests per minute |
-| Burst                 | 1 request per second   |
+| Global (GET Only)     | 30 requests per minute |
+| Global (HTTP Other)   | 10 requests per minute |
+| Burst (GET Only)      | 3 requests per second  |
+| Burst (HTTP Other)    | 1 request per second   |
 | Registration          | 1 per minute           |
 | Administrator Actions | 5 per minute           |
 

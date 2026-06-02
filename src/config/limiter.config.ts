@@ -33,21 +33,44 @@ const baseLimiter: Partial<Options> = {
 };
 
 export const limiter: Record<
-  "global" | "burst" | "admin" | "registration",
+  | "globalGET"
+  | "burstGET"
+  | "globalOTHER"
+  | "burstOTHER"
+  | "admin"
+  | "registration",
   Partial<Options>
 > = {
-  global: {
-    // 10 requests per minute
+  globalGET: {
+    // 30 requests per minute (GET HTTP only)
+    ...baseLimiter,
+    windowMs: 60 * 1000,
+    limit: 30,
+    skip: (req) => req.method !== "GET",
+  },
+
+  burstGET: {
+    // 3 requests per second (GET HTTP only)
+    ...baseLimiter,
+    windowMs: 1000,
+    limit: 3,
+    skip: (req) => req.method !== "GET",
+  },
+
+  globalOTHER: {
+    // 10 requests per minute (HTTP Other)
     ...baseLimiter,
     windowMs: 60 * 1000,
     limit: 10,
+    skip: (req) => req.method === "GET",
   },
 
-  burst: {
-    // 1 request per second
+  burstOTHER: {
+    // 1 request per second (HTTP Other)
     ...baseLimiter,
     windowMs: 1000,
     limit: 1,
+    skip: (req) => req.method === "GET",
   },
 
   registration: {

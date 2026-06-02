@@ -11,9 +11,13 @@ export const serverStart = async () => {
     // Initialise Express
     const app = express();
 
-    // Rate Limiter
-    app.use(rateLimit(config.limiter.burst)); // burst limit
-    app.use(rateLimit(config.limiter.global)); // global limit
+    // GET Rate Limiter
+    app.use(rateLimit(config.limiter.burstGET)); // GET burst limit
+    app.use(rateLimit(config.limiter.globalGET)); // GET global limit
+
+    // Other HTTP Requests Rate Limiter
+    app.use(rateLimit(config.limiter.burstOTHER)); // HTTP Others burst limit
+    app.use(rateLimit(config.limiter.globalOTHER)); // HTTP Others global limit
 
     // Setup CORS
     app.use(
