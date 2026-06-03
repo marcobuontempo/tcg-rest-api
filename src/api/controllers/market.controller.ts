@@ -83,7 +83,7 @@ export const createMarketListing = async (
     // commit transaction
     await transaction.commit();
 
-    return res.status(200).json({ listing_id: marketListing.id });
+    return res.status(201).json({ listing_id: marketListing.id });
   } catch (err) {
     // rollback on failure
     await transaction.rollback();
